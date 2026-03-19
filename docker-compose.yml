@@ -1,0 +1,54 @@
+services:
+  backend:
+    build: ./Dailydigest
+    container_name: dd-backend
+    restart: unless-stopped
+    env_file: ./Dailydigest/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+
+  celery:
+    build: ./Dailydigest
+    container_name: dd-celery
+    restart: unless-stopped
+    env_file: ./Dailydigest/.env
+    command: celery -A Dailydigest worker -l info
+    depends_on:
+      - redis
+      - backend
+
+  celery-beat:
+    build: ./Dailydigest
+    container_name: dd-celery-beat
+    restart: unless-stopped
+    env_file: ./Dailydigest/.env
+    command: celery -A Dailydigest beat -l info
+    depends_on:
+      - redis
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    container_name: dd-redis
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontdailydigest
+      args:
+        VITE_API_URL: https://daily-digest.lanaya.shop
+    container_name: dd-frontend
+    restart: unless-stopped
+    ports:
+      - "3080:80"
+    depends_on:
+      - backend
+
+volumes:
+  static_data:
+  media_data:

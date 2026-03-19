@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python manage.py run_digest)",
+      "Bash(.venv/Scripts/python -c \":*)",
+      "Bash(.venv/Scripts/python manage.py makemigrations themes)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\DarkSide\\\\Desktop\\\\Daily digest\\\\Dailydigest\\\\communication\\\\management\\\\commands\")",
+      "Bash(touch \"c:\\\\Users\\\\DarkSide\\\\Desktop\\\\Daily digest\\\\Dailydigest\\\\communication\\\\management\\\\__init__.py\")",
+      "Bash(touch \"c:\\\\Users\\\\DarkSide\\\\Desktop\\\\Daily digest\\\\Dailydigest\\\\communication\\\\management\\\\commands\\\\__init__.py\")",
+      "Bash(.venv/Scripts/python manage.py makemigrations communication)",
+      "Bash(.venv/Scripts/python manage.py showmigrations communication)",
+      "Bash(.venv/Scripts/python manage.py shell -c \"from communication.models import SocialPost; print\\(f''Total posts: {SocialPost.objects.count\\(\\)}''\\); print\\(''Par plateforme:''\\); from django.db.models import Count; [print\\(f''  {p[\"\"platform\"\"]}: {p[\"\"total\"\"]}''\\) for p in SocialPost.objects.values\\(''platform''\\).annotate\\(total=Count\\(''id''\\)\\)]\")",
+      "Bash(.venv/Scripts/python -c \"from digests.emailer import send_digest_email, send_all_pending_digests; print\\(''OK''\\)\")",
+      "Bash(.venv/Scripts/python manage.py shell -c \"from digests.emailer import send_digest_email, send_all_pending_digests; print\\(''Import OK''\\)\")",
+      "Bash(nslookup db.gzhusnvgpntwaktelhtz.supabase.co)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

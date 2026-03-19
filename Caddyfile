@@ -1,0 +1,7 @@
+daily-digest.lanaya.shop {
+    # Frontend (React/Nginx)
+    reverse_proxy /api/* localhost:8000
+
+    # Tout le reste vers le frontend
+    reverse_proxy * localhost:3080
+}

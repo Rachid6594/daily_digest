@@ -1,0 +1,787 @@
+/* ═══════════════════════════════════
+   THEME SETUP — Stepper page
+   ═══════════════════════════════════ */
+
+.ts-page {
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+/* ── TOP BAR ── */
+.ts-topbar {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 40px 0;
+}
+
+.ts-back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  font-family: 'Inter', sans-serif;
+  padding: 0;
+}
+
+.ts-back-link:hover {
+  color: var(--brown);
+}
+
+/* ── STEPPER ── */
+.ts-stepper-wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 40px 0;
+}
+
+.ts-stepper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.ts-stepper-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Sora', sans-serif;
+  border: 2px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.ts-stepper-dot--active {
+  border-color: var(--brown-btn);
+  background: var(--brown-btn);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(160, 84, 42, 0.15);
+}
+
+.ts-stepper-dot--done {
+  border-color: #2d7a4f;
+  background: #2d7a4f;
+  color: #fff;
+}
+
+.ts-stepper-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 8px;
+  text-align: center;
+  transition: color 0.3s;
+  white-space: nowrap;
+}
+
+.ts-stepper-label--active {
+  color: var(--brown);
+}
+
+.ts-stepper-line {
+  position: absolute;
+  top: 16px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+  transition: background 0.3s;
+}
+
+.ts-stepper-line--active {
+  background: #2d7a4f;
+}
+
+/* ── MAIN CONTENT ── */
+.ts-main {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.ts-content {
+  max-width: 600px;
+  width: 100%;
+}
+
+.ts-content-header {
+  margin-bottom: 32px;
+}
+
+.ts-content-icon {
+  color: var(--brown-btn);
+  margin-bottom: 12px;
+}
+
+.ts-content-header h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--brown);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.ts-content-header p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── TEXTAREA ── */
+.ts-textarea-wrap {
+  margin-bottom: 16px;
+}
+
+.ts-textarea {
+  width: 100%;
+  padding: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  background: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--brown);
+  resize: vertical;
+  min-height: 140px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.6;
+}
+
+.ts-textarea:focus {
+  border-color: var(--brown-btn);
+  box-shadow: 0 0 0 3px rgba(160, 84, 42, 0.1);
+}
+
+.ts-textarea::placeholder {
+  color: #b8a898;
+}
+
+.ts-textarea-hint {
+  text-align: right;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ── ERROR ── */
+.ts-error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ── BUTTONS ── */
+.ts-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--brown-btn);
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 4px 16px rgba(160, 84, 42, 0.25);
+}
+
+.ts-btn-primary:hover:not(:disabled) {
+  background: var(--brown-btn-hover);
+  transform: translateY(-1px);
+}
+
+.ts-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ts-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1.5px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 100px;
+  font-family: 'Sora', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brown);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.ts-btn-outline:hover {
+  border-color: var(--brown-btn);
+}
+
+/* ── SPINNER ── */
+.ts-spin {
+  animation: ts-spin 1s linear infinite;
+}
+
+@keyframes ts-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── SUGGESTIONS (Step 2) ── */
+.ts-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ts-suggestion-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.ts-suggestion-card:hover {
+  border-color: var(--brown-btn);
+  box-shadow: 0 4px 20px rgba(160, 84, 42, 0.12);
+  transform: translateY(-2px);
+}
+
+.ts-suggestion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--brown-btn);
+  margin-bottom: 8px;
+}
+
+.ts-suggestion-header h3 {
+  font-family: 'Sora', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brown);
+}
+
+.ts-suggestion-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.ts-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ts-keyword {
+  display: inline-block;
+  background: var(--cream);
+  color: var(--brown);
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+
+.ts-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--brown-btn);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  padding: 0;
+  transition: gap 0.2s;
+}
+
+.ts-suggestion-card:hover .ts-select-btn {
+  gap: 10px;
+}
+
+/* ── CONFIRM (Step 3) ── */
+.ts-confirm-card {
+  background: var(--white);
+  border: 2px solid var(--brown-btn);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.ts-confirm-card h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--brown);
+  margin-bottom: 6px;
+}
+
+.ts-confirm-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.ts-confirm-section {
+  margin-bottom: 16px;
+}
+
+.ts-confirm-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.ts-confirm-section p {
+  font-size: 14px;
+  color: var(--brown);
+  font-weight: 500;
+}
+
+.ts-confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── SOURCES (Step 4) ── */
+.ts-sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.ts-source-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.2s;
+}
+
+.ts-source-item:hover {
+  border-color: var(--brown-btn);
+}
+
+.ts-source-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ts-source-icon {
+  color: var(--brown-btn);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ts-source-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brown);
+}
+
+.ts-source-url {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 350px;
+}
+
+.ts-curated-badge {
+  display: inline-block;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ts-source-remove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.ts-source-remove:hover {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+/* ── ADD SOURCE ── */
+.ts-add-source {
+  background: var(--white);
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+.ts-add-source h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brown);
+  margin-bottom: 12px;
+}
+
+.ts-add-source-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ts-add-input {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--brown);
+  outline: none;
+  background: var(--cream);
+  transition: border-color 0.2s;
+  width: 140px;
+}
+
+.ts-add-input--url {
+  flex: 1;
+}
+
+.ts-add-input:focus {
+  border-color: var(--brown-btn);
+}
+
+.ts-add-input::placeholder {
+  color: #b8a898;
+}
+
+.ts-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--brown-btn);
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.ts-add-btn:hover:not(:disabled) {
+  background: var(--brown-btn-hover);
+}
+
+.ts-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ts-sources-max {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 12px;
+  background: var(--cream);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+/* ── CRITERIA (Step 5) ── */
+.ts-criteria-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ts-criterion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: border-color 0.2s;
+}
+
+.ts-criterion-item:hover {
+  border-color: var(--brown-btn);
+}
+
+.ts-criterion-text {
+  font-size: 14px;
+  color: var(--brown);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.ts-criterion-remove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.ts-criterion-remove:hover {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.ts-add-criterion {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.ts-criterion-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--brown);
+  outline: none;
+  background: var(--white);
+  transition: border-color 0.2s;
+}
+
+.ts-criterion-input:focus {
+  border-color: var(--brown-btn);
+  box-shadow: 0 0 0 3px rgba(160, 84, 42, 0.1);
+}
+
+.ts-criterion-input::placeholder {
+  color: #b8a898;
+}
+
+.ts-criteria-examples {
+  background: var(--white);
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.ts-criteria-examples h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.ts-criteria-example-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ts-criteria-example {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.ts-criteria-example:hover {
+  border-color: var(--brown-btn);
+  color: var(--brown);
+  background: rgba(160, 84, 42, 0.04);
+}
+
+/* ── RECAP CRITERIA ── */
+.ts-recap-criteria {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ts-recap-criterion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--brown);
+  font-weight: 500;
+  padding: 6px 0;
+}
+
+.ts-recap-criterion svg {
+  color: var(--brown-btn);
+  flex-shrink: 0;
+}
+
+/* ── RECAP SOURCES ── */
+.ts-recap-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ts-recap-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cream);
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brown);
+  border: 1px solid var(--border);
+}
+
+/* ── DONE ── */
+.ts-done {
+  text-align: center;
+}
+
+.ts-done-icon {
+  color: #2d7a4f;
+  margin-bottom: 16px;
+}
+
+.ts-done h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--brown);
+  margin-bottom: 12px;
+}
+
+.ts-done p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.ts-done-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .ts-stepper-wrap {
+    padding: 20px 16px 0;
+    gap: 0;
+  }
+
+  .ts-stepper-label {
+    font-size: 9px;
+  }
+
+  .ts-stepper-dot {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .ts-stepper-line {
+    top: 13px;
+  }
+
+  .ts-main {
+    padding: 24px 20px;
+  }
+
+  .ts-content-header h1 {
+    font-size: 22px;
+  }
+
+  .ts-confirm-actions,
+  .ts-done-actions {
+    flex-direction: column;
+  }
+}

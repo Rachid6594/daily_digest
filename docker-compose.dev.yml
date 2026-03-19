@@ -1,0 +1,28 @@
+services:
+  backend:
+    build: ./Dailydigest
+    container_name: dd-backend
+    env_file: ./Dailydigest/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Dailydigest:/app
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - redis
+
+  celery:
+    build: ./Dailydigest
+    container_name: dd-celery
+    env_file: ./Dailydigest/.env
+    command: celery -A Dailydigest worker -l info
+    volumes:
+      - ./Dailydigest:/app
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: dd-redis
+    ports:
+      - "6379:6379"
