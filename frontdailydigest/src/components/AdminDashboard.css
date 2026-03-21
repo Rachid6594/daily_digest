@@ -232,6 +232,14 @@
   cursor: not-allowed;
 }
 
+.admin-force-btn {
+  background: #e67e22;
+}
+
+.admin-force-btn:hover:not(:disabled) {
+  background: #d35400;
+}
+
 .admin-spin-icon {
   animation: admin-spin 1s linear infinite;
 }

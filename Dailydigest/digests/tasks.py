@@ -10,12 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(name="digests.tasks.run_daily_pipeline")
-def run_daily_pipeline():
+def run_daily_pipeline(run_id=None, force=False):
     """Pipeline quotidien : scrape toutes les sources → filtre → IA → digest."""
-    from digests.pipeline import run_pipeline
-    logger.info("Lancement du pipeline quotidien via Celery")
-    run_pipeline()
-    logger.info("Pipeline quotidien termine")
+    from digests.pipeline import run_pipeline, run_pipeline_with_run
+    logger.info(f"Lancement du pipeline via Celery (force={force})")
+    if run_id:
+        run_pipeline_with_run(run_id, force=force)
+    else:
+        run_pipeline()
+    logger.info("Pipeline termine")
 
 
 @shared_task(name="digests.tasks.scrape_theme_sources")

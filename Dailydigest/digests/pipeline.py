@@ -26,16 +26,16 @@ def run_pipeline():
     return _run_pipeline_internal(run)
 
 
-def run_pipeline_with_run(run_id: int):
+def run_pipeline_with_run(run_id: int, force: bool = False):
     """Execute le pipeline avec un PipelineRun deja cree."""
     run = PipelineRun.objects.get(id=run_id)
-    return _run_pipeline_internal(run)
+    return _run_pipeline_internal(run, force=force)
 
 
-def _run_pipeline_internal(run: PipelineRun):
+def _run_pipeline_internal(run: PipelineRun, force: bool = False):
     """Logique commune d'execution du pipeline."""
     try:
-        _execute_pipeline(run)
+        _execute_pipeline(run, force=force)
         run.status = "completed"
         run.completed_at = timezone.now()
         run.log_step("done", "Pipeline termine avec succes")
@@ -51,11 +51,11 @@ def _run_pipeline_internal(run: PipelineRun):
     return run
 
 
-def _execute_pipeline(run: PipelineRun):
+def _execute_pipeline(run: PipelineRun, force: bool = False):
     """Logique interne du pipeline avec tracking."""
 
     # ── ETAPE 1 : Identifier les sources ──
-    run.log_step("init", "Identification des sources actives...")
+    run.log_step("init", f"Identification des sources actives...{' (MODE FORCE)' if force else ''}")
 
     sources = Source.objects.filter(
         is_active=True,
@@ -72,7 +72,7 @@ def _execute_pipeline(run: PipelineRun):
     cooldown = timezone.now() - timedelta(hours=12)
 
     for i, source in enumerate(source_list, 1):
-        if source.last_scraped and source.last_scraped > cooldown:
+        if not force and source.last_scraped and source.last_scraped > cooldown:
             run.log_step(
                 "scraping",
                 f"Scraping ({i}/{len(source_list)})",
@@ -116,7 +116,7 @@ def _execute_pipeline(run: PipelineRun):
         run.save(update_fields=["processed_themes"])
 
         try:
-            digest = _generate_digest_tracked(theme, run, i, len(themes))
+            digest = _generate_digest_tracked(theme, run, i, len(themes), force=force)
             if digest and digest.status == "ready" and digest.items.exists():
                 run.log_step(
                     "emailing",
@@ -134,15 +134,16 @@ def _execute_pipeline(run: PipelineRun):
             logger.error(f"Erreur pipeline pour '{theme.name}': {e}")
 
 
-def _generate_digest_tracked(theme: Theme, run: PipelineRun, idx: int, total: int) -> Digest | None:
+def _generate_digest_tracked(theme: Theme, run: PipelineRun, idx: int, total: int, force: bool = False) -> Digest | None:
     """Genere un digest avec tracking dans le PipelineRun."""
 
-    # Verifier digest du jour
-    today = timezone.now().date()
-    existing = Digest.objects.filter(theme=theme, created_at__date=today).first()
-    if existing:
-        run.log_step("processing", f"Theme ({idx}/{total}) : {theme.name}", "Digest deja genere aujourd'hui, skip")
-        return existing
+    # Verifier digest du jour (skip si mode force)
+    if not force:
+        today = timezone.now().date()
+        existing = Digest.objects.filter(theme=theme, created_at__date=today).first()
+        if existing:
+            run.log_step("processing", f"Theme ({idx}/{total}) : {theme.name}", "Digest deja genere aujourd'hui, skip")
+            return existing
 
     digest = Digest.objects.create(user=theme.user, theme=theme, status="generating")
 

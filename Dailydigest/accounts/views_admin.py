@@ -169,8 +169,10 @@ def admin_scrape_jobs_view(request):
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def admin_run_pipeline_view(request):
-    """Lance le pipeline manuellement."""
+    """Lance le pipeline manuellement. ?force=true pour ignorer les restrictions."""
     from digests.models import PipelineRun
+
+    force = request.query_params.get("force") == "true" or request.data.get("force") is True
 
     # Verifier qu'il n'y a pas deja un pipeline en cours
     running = PipelineRun.objects.filter(status="running").first()
@@ -184,21 +186,22 @@ def admin_run_pipeline_view(request):
     run = PipelineRun.objects.create(status="running")
 
     # Lancer en arriere-plan
-    def _run_with_existing(run_id):
+    def _run_with_existing(run_id, force_mode):
         from digests.pipeline import run_pipeline_with_run
-        run_pipeline_with_run(run_id)
+        run_pipeline_with_run(run_id, force=force_mode)
 
     try:
         from digests.tasks import run_daily_pipeline
-        run_daily_pipeline.delay(run.id)
+        run_daily_pipeline.delay(run.id, force)
     except Exception:
         import threading
-        thread = threading.Thread(target=_run_with_existing, args=(run.id,), daemon=True)
+        thread = threading.Thread(target=_run_with_existing, args=(run.id, force), daemon=True)
         thread.start()
 
     return Response({
-        "message": "Pipeline lance.",
+        "message": "Pipeline lance (mode force)." if force else "Pipeline lance.",
         "run_id": run.id,
+        "force": force,
     })
 
 

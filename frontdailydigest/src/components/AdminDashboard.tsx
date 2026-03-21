@@ -429,14 +429,14 @@ export default function AdminDashboard() {
     })
   }
 
-  const handleRunPipeline = async () => {
+  const handleRunPipeline = async (force = false) => {
     setPipelineRunning(true)
-    setPipelineMsg('Lancement...')
+    setPipelineMsg(force ? 'Lancement (mode force)...' : 'Lancement...')
     setPipelineStatus(null)
     setSection('scraping')
     setLoading(false)
     try {
-      const res = await fetch(`${API_URL}/admin/run-pipeline/`, {
+      const res = await fetch(`${API_URL}/admin/run-pipeline/${force ? '?force=true' : ''}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -634,11 +634,19 @@ export default function AdminDashboard() {
               <div className="admin-header-actions">
                 <button
                   className="admin-pipeline-btn"
-                  onClick={handleRunPipeline}
+                  onClick={() => handleRunPipeline(false)}
                   disabled={pipelineRunning}
                 >
                   {pipelineRunning ? <FiRefreshCw className="admin-spin-icon" /> : <FiPlay />}
                   {pipelineRunning ? 'Pipeline en cours...' : 'Lancer le pipeline'}
+                </button>
+                <button
+                  className="admin-pipeline-btn admin-force-btn"
+                  onClick={() => handleRunPipeline(true)}
+                  disabled={pipelineRunning}
+                  title="Ignore les cooldowns et re-genere tous les digests"
+                >
+                  <FiRefreshCw /> Forcer
                 </button>
                 <button className="admin-refresh-btn" onClick={() => loadSection('dashboard')}>
                   <FiRefreshCw /> Actualiser
@@ -939,11 +947,19 @@ export default function AdminDashboard() {
               <div className="admin-header-actions">
                 <button
                   className="admin-pipeline-btn"
-                  onClick={handleRunPipeline}
+                  onClick={() => handleRunPipeline(false)}
                   disabled={pipelineRunning}
                 >
                   {pipelineRunning ? <FiRefreshCw className="admin-spin-icon" /> : <FiPlay />}
                   {pipelineRunning ? 'Pipeline en cours...' : 'Lancer le pipeline'}
+                </button>
+                <button
+                  className="admin-pipeline-btn admin-force-btn"
+                  onClick={() => handleRunPipeline(true)}
+                  disabled={pipelineRunning}
+                  title="Ignore les cooldowns et re-genere tous les digests"
+                >
+                  <FiRefreshCw /> Forcer
                 </button>
                 <button className="admin-refresh-btn" onClick={() => loadSection('scraping')}>
                   <FiRefreshCw /> Actualiser
