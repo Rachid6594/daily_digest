@@ -108,6 +108,16 @@ class Theme(models.Model):
         return f"{self.user.email} - {self.name}"
 
     def get_keywords_list(self):
+        if not self.keywords:
+            return []
         if isinstance(self.keywords, list):
             return self.keywords
-        return json.loads(self.keywords) if self.keywords else []
+        # Essayer JSON d'abord, sinon CSV
+        try:
+            parsed = json.loads(self.keywords)
+            if isinstance(parsed, list):
+                return parsed
+        except (json.JSONDecodeError, TypeError):
+            pass
+        # Format CSV : "mot1,mot2,mot3"
+        return [k.strip() for k in self.keywords.split(",") if k.strip()]
