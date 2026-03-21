@@ -9,7 +9,6 @@ import {
   FiX,
 } from 'react-icons/fi'
 import {
-  HiOutlineNewspaper,
   HiOutlineGlobeAlt,
   HiOutlineLightBulb,
   HiOutlineRocketLaunch,
@@ -91,9 +90,7 @@ function App() {
       {/* NAV */}
       <nav className="landing-nav">
         <a href="#" className="logo">
-          <div className="logo-icon">
-            <HiOutlineNewspaper />
-          </div>
+          <img src="/logo.png" alt="DailyDigest" className="logo-img" />
           DailyDigest
         </a>
         <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -368,9 +365,7 @@ function App() {
       {/* FOOTER */}
       <footer>
         <div className="logo">
-          <div className="logo-icon">
-            <HiOutlineNewspaper />
-          </div>
+          <img src="/logo.png" alt="DailyDigest" className="logo-img" />
           DailyDigest
         </div>
         <p>&copy; 2026 DailyDigest — Fait avec amour pour l'Afrique & le monde.</p>

@@ -148,9 +148,7 @@ export default function HomePage() {
       {/* NAV */}
       <nav className="home-nav">
         <a href="#/home" className="logo">
-          <div className="logo-icon">
-            <HiOutlineNewspaper />
-          </div>
+          <img src="/logo.png" alt="DailyDigest" className="logo-img" />
           DailyDigest
         </a>
         <div className="home-nav-center">

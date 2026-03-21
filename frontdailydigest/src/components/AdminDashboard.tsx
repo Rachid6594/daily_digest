@@ -25,7 +25,6 @@ import {
   FiMenu,
 } from 'react-icons/fi'
 import {
-  HiOutlineNewspaper,
   HiOutlineSparkles,
   HiOutlineCpuChip,
 } from 'react-icons/hi2'
@@ -577,7 +576,7 @@ export default function AdminDashboard() {
           {sidebarOpen ? <FiX size={22} /> : <FiMenu size={22} />}
         </button>
         <a href="#/admin" className="logo">
-          <div className="logo-icon"><HiOutlineNewspaper /></div>
+          <img src="/logo.png" alt="DailyDigest" className="logo-img" />
           DailyDigest
         </a>
       </div>
@@ -586,7 +585,7 @@ export default function AdminDashboard() {
       {/* SIDEBAR */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'admin-sidebar--open' : ''}`}>
         <a href="#/admin" className="logo">
-          <div className="logo-icon"><HiOutlineNewspaper /></div>
+          <img src="/logo.png" alt="DailyDigest" className="logo-img" />
           DailyDigest
         </a>
         <div className="admin-badge">Admin</div>

@@ -58,6 +58,11 @@
   font-size: 16px;
 }
 
+.admin-sidebar .logo-img {
+  width: 32px;
+  height: 32px;
+}
+
 .admin-badge {
   display: inline-block;
   background: var(--brown-btn);
