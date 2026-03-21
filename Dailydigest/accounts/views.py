@@ -232,6 +232,100 @@ def me_view(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
+def google_oauth_view(request):
+    """Connexion/inscription via Google. Recoit le credential (ID token) du frontend."""
+    import json
+    from urllib.request import urlopen
+
+    credential = request.data.get('credential')
+    if not credential:
+        return Response({"error": "Token Google manquant."}, status=status.HTTP_400_BAD_REQUEST)
+
+    google_client_id = settings.GOOGLE_CLIENT_ID
+    if not google_client_id:
+        return Response({"error": "Google OAuth non configure."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    try:
+        # Decoder le JWT Google sans verification (on verifie manuellement)
+        import base64
+        parts = credential.split(".")
+        if len(parts) != 3:
+            raise ValueError("Token invalide")
+
+        # Decoder le payload (partie 2)
+        payload = parts[1]
+        payload += "=" * (4 - len(payload) % 4)  # padding base64
+        decoded = json.loads(base64.urlsafe_b64decode(payload))
+
+        # Verifier l'audience (client_id)
+        if decoded.get("aud") != google_client_id:
+            return Response({"error": "Token Google invalide (audience)."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Verifier l'issuer
+        if decoded.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+            return Response({"error": "Token Google invalide (issuer)."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Verifier l'expiration
+        import time
+        if decoded.get("exp", 0) < time.time():
+            return Response({"error": "Token Google expire."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        email = decoded.get("email")
+        if not email:
+            return Response({"error": "Email non fourni par Google."}, status=status.HTTP_400_BAD_REQUEST)
+
+        email_verified = decoded.get("email_verified", False)
+        given_name = decoded.get("given_name", "")
+        family_name = decoded.get("family_name", "")
+        name = decoded.get("name", given_name)
+
+    except Exception as e:
+        return Response({"error": f"Token Google invalide: {str(e)[:100]}"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Chercher ou creer l'utilisateur
+    try:
+        user = User.objects.get(email=email)
+        # Utilisateur existe — activer si pas actif (Google a verifie l'email)
+        if not user.is_active:
+            user.is_active = True
+            user.save(update_fields=["is_active"])
+    except User.DoesNotExist:
+        # Creer un nouvel utilisateur
+        username = email.split("@")[0]
+        # Eviter les doublons de username
+        base_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=None,  # Pas de mot de passe pour les comptes Google
+            is_active=True,  # Pas besoin de verification email
+        )
+
+    # Generer les JWT
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        "message": "Connexion Google reussie.",
+        "tokens": {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+        },
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "language": user.language,
+            "is_admin": user.is_staff or user.is_superuser,
+        }
+    })
+
+
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     try:

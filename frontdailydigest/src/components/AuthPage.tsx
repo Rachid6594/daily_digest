@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   FiMail,
   FiLock,
@@ -11,9 +11,22 @@ import {
 } from 'react-icons/fi'
 import { HiOutlineNewspaper } from 'react-icons/hi2'
 import './AuthPage.css'
-import { API_AUTH_URL } from '../config'
+import { API_AUTH_URL, GOOGLE_CLIENT_ID } from '../config'
 
 const API_URL = API_AUTH_URL
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: Record<string, unknown>) => void
+          renderButton: (element: HTMLElement, config: Record<string, unknown>) => void
+        }
+      }
+    }
+  }
+}
 
 type AlertType = { type: 'success' | 'error'; message: string; verifyUrl?: string } | null
 
@@ -35,6 +48,74 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     password: '',
     confirmPassword: '',
   })
+
+  const handleGoogleResponse = useCallback(async (response: { credential: string }) => {
+    setLoading(true)
+    setAlert(null)
+    try {
+      const res = await fetch(`${API_URL}/google-oauth/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: response.credential }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        localStorage.setItem('access_token', data.tokens.access)
+        localStorage.setItem('refresh_token', data.tokens.refresh)
+        localStorage.setItem('user', JSON.stringify(data.user))
+        if (onLogin) onLogin(data.user.is_admin)
+      } else {
+        setAlert({ type: 'error', message: data.error || 'Erreur de connexion Google.' })
+      }
+    } catch {
+      setAlert({ type: 'error', message: 'Impossible de contacter le serveur.' })
+    } finally {
+      setLoading(false)
+    }
+  }, [onLogin])
+
+  useEffect(() => {
+    const initGoogle = () => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+        })
+        const loginBtn = document.getElementById('google-btn-login')
+        const registerBtn = document.getElementById('google-btn-register')
+        if (loginBtn) {
+          window.google.accounts.id.renderButton(loginBtn, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'signin_with',
+            locale: 'fr',
+          })
+        }
+        if (registerBtn) {
+          window.google.accounts.id.renderButton(registerBtn, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'signup_with',
+            locale: 'fr',
+          })
+        }
+      }
+    }
+    // Le script GSI peut ne pas etre charge tout de suite
+    if (window.google) {
+      initGoogle()
+    } else {
+      const interval = setInterval(() => {
+        if (window.google) {
+          clearInterval(interval)
+          initGoogle()
+        }
+      }, 100)
+      return () => clearInterval(interval)
+    }
+  }, [handleGoogleResponse])
 
   const switchMode = (newMode: 'login' | 'register') => {
     setAlert(null)
@@ -223,6 +304,12 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                 {loading ? 'Connexion...' : <>Se connecter <FiArrowRight /></>}
               </button>
 
+              <div className="auth-divider">
+                <span>ou</span>
+              </div>
+
+              <div id="google-btn-login" className="auth-google-wrap" />
+
               <p className="auth-switch auth-switch--mobile">
                 Pas encore de compte ?{' '}
                 <button type="button" onClick={() => switchMode('register')}>Creer un compte</button>
@@ -316,6 +403,12 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
               <button type="submit" className="auth-submit" disabled={loading}>
                 {loading ? 'Creation...' : <>Creer mon compte <FiArrowRight /></>}
               </button>
+
+              <div className="auth-divider">
+                <span>ou</span>
+              </div>
+
+              <div id="google-btn-register" className="auth-google-wrap" />
 
               <p className="auth-switch auth-switch--mobile">
                 Deja un compte ?{' '}

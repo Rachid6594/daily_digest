@@ -8,4 +8,5 @@ urlpatterns = [
     path('resend-verification/', views.resend_verification_view, name='resend-verification'),
     path('me/', views.me_view, name='me'),
     path('logout/', views.logout_view, name='logout'),
+    path('google-oauth/', views.google_oauth_view, name='google-oauth'),
 ]
