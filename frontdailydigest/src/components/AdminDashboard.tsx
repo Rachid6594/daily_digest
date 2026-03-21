@@ -22,6 +22,7 @@ import {
   FiChevronLeft,
   FiChevronRight,
   FiEye,
+  FiMenu,
 } from 'react-icons/fi'
 import {
   HiOutlineNewspaper,
@@ -208,6 +209,7 @@ export default function AdminDashboard() {
   const [scrapeJobs, setScrapeJobs] = useState<ScrapeJobItem[]>([])
   const [curatedSources, setCuratedSources] = useState<CuratedSourceItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [pipelineRunning, setPipelineRunning] = useState(false)
   const [pipelineMsg, setPipelineMsg] = useState('')
   const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(null)
@@ -568,9 +570,21 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="admin-page">
+    <>
+      {/* MOBILE TOPBAR */}
+      <div className="admin-mobile-topbar">
+        <button className="admin-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
+          {sidebarOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+        </button>
+        <a href="#/admin" className="logo">
+          <div className="logo-icon"><HiOutlineNewspaper /></div>
+          DailyDigest
+        </a>
+      </div>
+      {sidebarOpen && <div className="admin-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      <div className="admin-page">
       {/* SIDEBAR */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${sidebarOpen ? 'admin-sidebar--open' : ''}`}>
         <a href="#/admin" className="logo">
           <div className="logo-icon"><HiOutlineNewspaper /></div>
           DailyDigest
@@ -583,7 +597,7 @@ export default function AdminDashboard() {
             <button
               key={item.key}
               className={`admin-nav-item ${section === item.key ? 'active' : ''}`}
-              onClick={() => loadSection(item.key)}
+              onClick={() => { loadSection(item.key); setSidebarOpen(false); }}
             >
               {item.icon} {item.label}
             </button>
@@ -596,7 +610,7 @@ export default function AdminDashboard() {
             <button
               key={item.key}
               className={`admin-nav-item ${section === item.key ? 'active' : ''}`}
-              onClick={() => loadSection(item.key)}
+              onClick={() => { loadSection(item.key); setSidebarOpen(false); }}
             >
               {item.icon} {item.label}
             </button>
@@ -1658,6 +1672,7 @@ export default function AdminDashboard() {
         )}
       </main>
     </div>
+    </>
   )
 }
 

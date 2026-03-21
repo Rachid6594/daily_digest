@@ -88,6 +88,19 @@ body {
 }
 .nav-cta:hover { background: var(--brown-mid) !important; }
 
+/* Hamburger button — hidden on desktop */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--brown);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.mobile-menu-btn:hover { background: rgba(61,31,10,0.08); }
+
 /* ── HERO ── */
 .hero {
   padding: 140px 24px 80px;
@@ -878,13 +891,54 @@ footer p { font-size: 13px; color: var(--muted); }
 .fade-up.visible { opacity: 1; transform: none; }
 
 /* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .steps-grid, .testi-grid { grid-template-columns: repeat(2, 1fr); }
+  .roadmap-section { padding: 72px 24px; }
+}
+
 @media (max-width: 768px) {
   .landing-nav { padding: 0 20px; }
-  .landing-nav ul { display: none; }
-  .section { padding: 72px 20px; }
+  .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+  .landing-nav ul {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: rgba(242,236,224,0.98);
+    backdrop-filter: blur(16px);
+    padding: 16px 20px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 8px 24px rgba(61,31,10,0.1);
+  }
+  .landing-nav ul.nav-open { display: flex; }
+  .landing-nav ul li { width: 100%; }
+  .landing-nav ul a { display: block; padding: 10px 16px; border-radius: 8px; font-size: 15px; }
+  .landing-nav ul a:hover { background: rgba(61,31,10,0.05); }
+  .nav-cta { text-align: center !important; margin-top: 4px; }
+
+  .hero { padding: 100px 20px 60px; }
+  .hero-emoji { font-size: 56px; margin-bottom: 20px; }
+  .btn-main { padding: 16px 36px; font-size: 15px; }
+  .mockup-body { padding: 18px; }
+  .email-subject-line { font-size: 15px; }
+
+  .section { padding: 60px 20px; }
+  .section-sub { margin-bottom: 36px; }
   .steps-grid, .features-grid, .pricing-grid, .testi-grid { grid-template-columns: 1fr; }
   .feat-card.wide { grid-column: auto; }
+  .step-card, .feat-card { padding: 24px 20px; }
+
+  .cta-section { padding: 60px 20px 80px; }
   .cta-box { padding: 48px 24px; }
   .cta-form { flex-direction: column; }
-  footer { flex-direction: column; gap: 16px; text-align: center; }
+
+  .roadmap-phase { padding-left: 56px; }
+  .roadmap-timeline::before { left: 20px; }
+  .phase-dot { left: 8px; }
+
+  footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 20px; }
+  .footer-links { justify-content: center; }
 }

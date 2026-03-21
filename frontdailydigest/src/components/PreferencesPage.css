@@ -296,7 +296,7 @@
 }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .pref-topbar {
     padding: 16px 20px 0;
   }
@@ -306,7 +306,7 @@
   }
 
   .pref-header h1 {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .pref-card {
@@ -315,5 +315,30 @@
 
   .pref-info-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pref-source-url {
+    max-width: 150px;
+  }
+
+  .pref-theme-top {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pref-header h1 {
+    font-size: 20px;
+  }
+
+  .pref-source-item {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .pref-source-url {
+    max-width: 100%;
+    margin-left: 0;
   }
 }

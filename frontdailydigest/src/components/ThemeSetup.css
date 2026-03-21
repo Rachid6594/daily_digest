@@ -752,12 +752,38 @@
 }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .ts-topbar {
+    padding: 16px 20px 0;
+  }
+
   .ts-stepper-wrap {
     padding: 20px 16px 0;
     gap: 0;
   }
 
+  .ts-main {
+    padding: 24px 20px;
+  }
+
+  .ts-content-header h1 {
+    font-size: 24px;
+  }
+
+  .ts-source-url {
+    max-width: 180px;
+  }
+
+  .ts-add-source-form {
+    flex-wrap: wrap;
+  }
+
+  .ts-add-input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
   .ts-stepper-label {
     font-size: 9px;
   }
@@ -772,16 +798,24 @@
     top: 13px;
   }
 
-  .ts-main {
-    padding: 24px 20px;
+  .ts-content-header h1 {
+    font-size: 20px;
   }
 
-  .ts-content-header h1 {
-    font-size: 22px;
+  .ts-confirm-card {
+    padding: 20px;
   }
 
   .ts-confirm-actions,
   .ts-done-actions {
     flex-direction: column;
+  }
+
+  .ts-suggestion-card {
+    padding: 18px;
+  }
+
+  .ts-source-url {
+    max-width: 140px;
   }
 }

@@ -5,6 +5,8 @@ import {
   FiCheck,
   FiLock,
   FiArrowRight,
+  FiMenu,
+  FiX,
 } from 'react-icons/fi'
 import {
   HiOutlineNewspaper,
@@ -50,6 +52,7 @@ function getPage(): Page {
 
 function App() {
   const [page, setPage] = useState<Page>(getPage)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const onHash = () => setPage(getPage())
@@ -93,11 +96,14 @@ function App() {
           </div>
           DailyDigest
         </a>
-        <ul>
-          <li><a href="#how">Comment ca marche</a></li>
-          <li><a href="#features">Fonctionnalites</a></li>
-          <li><a href="#pricing">Tarifs</a></li>
-          <li><a href="#/auth" className="nav-cta">Commencer <FiArrowRight /></a></li>
+        <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+        </button>
+        <ul className={mobileMenuOpen ? 'nav-open' : ''}>
+          <li><a href="#how" onClick={() => setMobileMenuOpen(false)}>Comment ca marche</a></li>
+          <li><a href="#features" onClick={() => setMobileMenuOpen(false)}>Fonctionnalites</a></li>
+          <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Tarifs</a></li>
+          <li><a href="#/auth" className="nav-cta" onClick={() => setMobileMenuOpen(false)}>Commencer <FiArrowRight /></a></li>
         </ul>
       </nav>
 
@@ -123,7 +129,7 @@ function App() {
           <strong>Gratuit pendant le lancement</strong>
         </div>
 
-        <a href="#signup" className="btn-main">Commencer gratuitement</a>
+        <a href="#/auth" className="btn-main">Commencer gratuitement</a>
         <p className="hero-note">Aucune carte bancaire requise </p>
 
         {/* EMAIL MOCKUP */}
@@ -299,7 +305,7 @@ function App() {
               <li><span className="check-ico"><FiCheck size={10} /></span> Resumes IA</li>
               <li><span className="check-ico"><FiCheck size={10} /></span> Sources verifiees</li>
             </ul>
-            <a href="#signup" className="btn-price btn-outline">Commencer <FiArrowRight /></a>
+            <a href="#/auth" className="btn-price btn-outline">Commencer <FiArrowRight /></a>
           </div>
 
         </div>
@@ -354,11 +360,8 @@ function App() {
         <div className="cta-box">
           <h2>Commencez a lire differemment.</h2>
           <p>Rejoignez les premiers utilisateurs. Gratuit pendant le lancement — aucune carte bancaire requise.</p>
-          <div className="cta-form">
-            <input type="email" placeholder="votre@email.com" />
-            <button>Rejoindre <FiArrowRight /></button>
-          </div>
-          <p className="cta-note"><FiLock size={12} /> Aucun spam. Desabonnement en 1 clic.</p>
+          <a href="#/auth" className="btn-main" style={{ margin: '0 auto' }}>Rejoindre gratuitement <FiArrowRight /></a>
+          <p className="cta-note" style={{ marginTop: 16 }}><FiLock size={12} /> Aucun spam. Desabonnement en 1 clic.</p>
         </div>
       </div>
 
