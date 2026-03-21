@@ -32,7 +32,7 @@ import { FaFacebook, FaLinkedin, FaTwitter } from 'react-icons/fa'
 import './AdminDashboard.css'
 import { API_URL } from '../config'
 
-type AdminSection = 'dashboard' | 'users' | 'themes' | 'sources' | 'digests' | 'scraping' | 'curated' | 'calendar' | 'post-detail' | 'ai-usage'
+type AdminSection = 'dashboard' | 'users' | 'themes' | 'sources' | 'digests' | 'scraping' | 'curated' | 'calendar' | 'post-detail' | 'ai-usage' | 'maintenance'
 
 interface Stats {
   total_users: number
@@ -213,6 +213,7 @@ export default function AdminDashboard() {
   const [pipelineMsg, setPipelineMsg] = useState('')
   const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(null)
   const [pipelinePolling, setPipelinePolling] = useState(false)
+  const [purgeResult, setPurgeResult] = useState<Record<string, number> | null>(null)
 
   // Curated source form
   const [showCuratedForm, setShowCuratedForm] = useState(false)
@@ -554,6 +555,7 @@ export default function AdminDashboard() {
     { key: 'scraping', icon: <HiOutlineCpuChip />, label: 'Scraping' },
     { key: 'curated', icon: <FiBookmark />, label: 'Base curatee' },
     { key: 'ai-usage', icon: <HiOutlineCpuChip />, label: 'Usage IA' },
+    { key: 'maintenance', icon: <FiDatabase />, label: 'Maintenance' },
   ]
 
   const comNavItems: { key: AdminSection; icon: React.ReactNode; label: string }[] = [
@@ -1416,6 +1418,60 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </>
+        )}
+
+        {/* ══ MAINTENANCE ══ */}
+        {section === 'maintenance' && (
+          <>
+            <div className="admin-header">
+              <div>
+                <h1>Maintenance</h1>
+                <p>Outils d'administration et nettoyage</p>
+              </div>
+            </div>
+
+            <div className="admin-section">
+              <h2><FiTrash2 style={{ marginRight: 8 }} /> Purger la base de donnees</h2>
+              <p style={{ color: '#8a7060', marginBottom: 16 }}>
+                Supprime tous les <strong>articles</strong>, <strong>digests</strong>, <strong>scrape jobs</strong>,
+                <strong> email logs</strong> et <strong>pipeline runs</strong>.<br />
+                Conserve : utilisateurs, themes, sources, usage IA.
+              </p>
+              <p style={{ color: '#8a7060', marginBottom: 16 }}>
+                Reset aussi le <strong>last_scraped</strong> de toutes les sources pour pouvoir relancer un pipeline propre.
+              </p>
+              {purgeResult && (
+                <div className="admin-section" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                  <strong style={{ color: '#166534' }}>Purge terminee</strong>
+                  <ul style={{ margin: '8px 0 0', paddingLeft: 20, color: '#166534' }}>
+                    <li>{purgeResult.articles} articles supprimes</li>
+                    <li>{purgeResult.digests} digests supprimes</li>
+                    <li>{purgeResult.digest_articles} digest articles supprimes</li>
+                    <li>{purgeResult.scrape_jobs} scrape jobs supprimes</li>
+                    <li>{purgeResult.email_logs} email logs supprimes</li>
+                    <li>{purgeResult.pipeline_runs} pipeline runs supprimes</li>
+                  </ul>
+                </div>
+              )}
+              <button
+                className="admin-pipeline-btn"
+                style={{ background: '#dc2626' }}
+                onClick={async () => {
+                  if (!confirm('Etes-vous sur de vouloir purger ? Cette action est irreversible.')) return
+                  try {
+                    const data = await fetchApi('/admin/purge/', { method: 'POST' })
+                    setPurgeResult(data.deleted)
+                    loadSection('dashboard')
+                    setSection('maintenance')
+                  } catch {
+                    alert('Erreur lors de la purge')
+                  }
+                }}
+              >
+                <FiTrash2 /> Purger articles & digests
+              </button>
             </div>
           </>
         )}

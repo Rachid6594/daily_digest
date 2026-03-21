@@ -389,3 +389,41 @@ def admin_ai_usage_view(request):
         "by_feature": by_feature,
         "logs": logs_data,
     })
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_purge_view(request):
+    """Purge articles, digests, scrape jobs, email logs, pipeline runs.
+    Garde : users, themes, sources, AI usage logs."""
+    from digests.models import Article, Digest, DigestArticle, ScrapeJob, EmailLog, PipelineRun
+    from themes.models import Source
+
+    digest_articles = DigestArticle.objects.count()
+    digests = Digest.objects.count()
+    articles = Article.objects.count()
+    scrape_jobs = ScrapeJob.objects.count()
+    email_logs = EmailLog.objects.count()
+    pipeline_runs = PipelineRun.objects.count()
+
+    DigestArticle.objects.all().delete()
+    Digest.objects.all().delete()
+    Article.objects.all().delete()
+    ScrapeJob.objects.all().delete()
+    EmailLog.objects.all().delete()
+    PipelineRun.objects.all().delete()
+
+    # Reset last_scraped sur toutes les sources
+    Source.objects.update(last_scraped=None, success_count=0, error_count=0)
+
+    return Response({
+        "message": "Purge terminee",
+        "deleted": {
+            "digest_articles": digest_articles,
+            "digests": digests,
+            "articles": articles,
+            "scrape_jobs": scrape_jobs,
+            "email_logs": email_logs,
+            "pipeline_runs": pipeline_runs,
+        }
+    })

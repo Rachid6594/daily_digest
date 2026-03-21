@@ -22,7 +22,7 @@ from accounts.views_admin import (
     admin_sources_view, admin_digests_view, admin_scrape_jobs_view,
     admin_run_pipeline_view, admin_pipeline_status_view,
     admin_curated_sources_view, admin_curated_source_detail_view,
-    admin_ai_usage_view,
+    admin_ai_usage_view, admin_purge_view,
 )
 
 urlpatterns = [
@@ -41,5 +41,6 @@ urlpatterns = [
     path("api/admin/curated-sources/", admin_curated_sources_view, name="admin-curated-sources"),
     path("api/admin/curated-sources/<int:source_id>/", admin_curated_source_detail_view, name="admin-curated-source-detail"),
     path("api/admin/ai-usage/", admin_ai_usage_view, name="admin-ai-usage"),
+    path("api/admin/purge/", admin_purge_view, name="admin-purge"),
     path("api/communication/", include("communication.urls")),
 ]
