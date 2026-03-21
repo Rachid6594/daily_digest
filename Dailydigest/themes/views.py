@@ -65,9 +65,9 @@ L'utilisateur a saisi ce texte : "{user_input}"
 
 A partir de ce texte, propose exactement 2 themes de veille pertinents.
 Pour chaque theme, donne :
-- name: un nom court et clair (max 5 mots)
+- name: un nom court et clair (max 5 mots, en francais)
 - description: une description en 1 phrase de ce que le theme couvre
-- keywords: une liste de 5 a 8 mots-cles pertinents pour la recherche d'articles
+- keywords: une liste de 10 a 15 mots-cles pertinents pour la recherche d'articles. IMPORTANT : inclure chaque mot-cle EN FRANCAIS ET EN ANGLAIS. Exemple : si le mot-cle est "intelligence artificielle", ajouter aussi "artificial intelligence". Cela permet de matcher les articles dans les deux langues.
 
 Reponds UNIQUEMENT en JSON valide, sans markdown, sans backticks, avec cette structure exacte :
 [
