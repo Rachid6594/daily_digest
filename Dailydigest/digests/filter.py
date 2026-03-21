@@ -48,11 +48,12 @@ def get_filtered_articles(theme: Theme, days: int = 2, force: bool = False) -> l
         f"Theme '{theme.name}': {articles.count()} articles -> {len(matched)} apres filtre mots-cles"
     )
 
-    # Mode force : si 0 apres filtre, prendre les plus recents sans filtre
-    if not matched and force and articles.exists():
-        matched = list(articles.order_by("-scraped_at")[:20])
+    # Fallback : si 0 apres filtre, prendre les plus recents sans filtre
+    # L'IA est capable de juger la pertinence meme sans match mots-cles
+    if not matched and articles.exists():
+        matched = list(articles.order_by("-scraped_at")[:30])
         logger.info(
-            f"Theme '{theme.name}': mode force, fallback sans filtre -> {len(matched)} articles"
+            f"Theme '{theme.name}': fallback sans filtre mots-cles -> {len(matched)} articles (l'IA triera)"
         )
 
     return matched[:50]  # Cap a 50 pour l'IA
