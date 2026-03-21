@@ -1461,7 +1461,11 @@ export default function AdminDashboard() {
                 onClick={async () => {
                   if (!confirm('Etes-vous sur de vouloir purger ? Cette action est irreversible.')) return
                   try {
-                    const data = await fetchApi('/admin/purge/', { method: 'POST' })
+                    const res = await fetch(`${API_URL}/admin/purge/`, {
+                      method: 'POST',
+                      headers: { Authorization: `Bearer ${token}` },
+                    })
+                    const data = await res.json()
                     setPurgeResult(data.deleted)
                     loadSection('dashboard')
                     setSection('maintenance')
