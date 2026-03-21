@@ -214,6 +214,8 @@ export default function AdminDashboard() {
   const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus | null>(null)
   const [pipelinePolling, setPipelinePolling] = useState(false)
   const [purgeResult, setPurgeResult] = useState<Record<string, number> | null>(null)
+  const [translateResult, setTranslateResult] = useState<{ theme: string; before: string[]; added: string[]; total: number; error?: string }[] | null>(null)
+  const [translating, setTranslating] = useState(false)
 
   // Curated source form
   const [showCuratedForm, setShowCuratedForm] = useState(false)
@@ -1475,6 +1477,71 @@ export default function AdminDashboard() {
                 }}
               >
                 <FiTrash2 /> Purger articles & digests
+              </button>
+            </div>
+
+            {/* Traduction mots-cles */}
+            <div className="admin-section">
+              <h2><FiGlobe style={{ marginRight: 8 }} /> Traduire les mots-cles (FR ↔ EN)</h2>
+              <p style={{ color: '#8a7060', marginBottom: 16 }}>
+                Pour chaque theme actif, l'IA traduit les mots-cles existants dans l'autre langue et les ajoute.
+                Exemple : "cybersecurite" → ajoute "cybersecurity". Permet de matcher les articles en francais ET en anglais.
+              </p>
+              {translateResult && (
+                <div className="admin-section" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+                  <strong style={{ color: '#166534' }}>Traduction terminee</strong>
+                  {translateResult.map((r, i) => (
+                    <div key={i} style={{ marginTop: 12, padding: 12, background: '#fff', borderRadius: 8 }}>
+                      <strong>{r.theme}</strong>
+                      {r.error ? (
+                        <p style={{ color: '#dc2626' }}>Erreur : {r.error}</p>
+                      ) : (
+                        <>
+                          <p style={{ fontSize: 13, color: '#8a7060', margin: '4px 0' }}>
+                            +{r.added.length} mots-cles ajoutes → {r.total} total
+                          </p>
+                          {r.added.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
+                              {r.added.map((kw, j) => (
+                                <span key={j} style={{
+                                  background: '#dcfce7', color: '#166534', padding: '2px 8px',
+                                  borderRadius: 4, fontSize: 12, fontWeight: 500
+                                }}>+ {kw}</span>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                className="admin-pipeline-btn"
+                style={{ background: '#2563eb' }}
+                disabled={translating}
+                onClick={async () => {
+                  setTranslating(true)
+                  setTranslateResult(null)
+                  try {
+                    const res = await fetch(`${API_URL}/admin/translate-keywords/`, {
+                      method: 'POST',
+                      headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({}),
+                    })
+                    const data = await res.json()
+                    setTranslateResult(data.results)
+                  } catch {
+                    alert('Erreur lors de la traduction')
+                  }
+                  setTranslating(false)
+                }}
+              >
+                {translating ? <FiRefreshCw className="admin-spin-icon" /> : <FiGlobe />}
+                {translating ? 'Traduction en cours...' : 'Traduire tous les mots-cles'}
               </button>
             </div>
           </>

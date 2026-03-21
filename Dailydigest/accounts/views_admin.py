@@ -427,3 +427,96 @@ def admin_purge_view(request):
             "pipeline_runs": pipeline_runs,
         }
     })
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def admin_translate_keywords_view(request):
+    """Traduit les mots-cles existants FR->EN ou EN->FR et les ajoute."""
+    from themes.models import Theme
+    from groq import Groq
+    from digests.models import AIUsageLog
+    import json
+
+    theme_id = request.data.get("theme_id")
+    if theme_id:
+        themes = Theme.objects.filter(id=theme_id)
+    else:
+        themes = Theme.objects.filter(is_active=True)
+
+    if not themes.exists():
+        return Response({"error": "Aucun theme trouve."}, status=404)
+
+    api_key = settings.GROQ_API_KEY
+    if not api_key:
+        return Response({"error": "Cle API Groq non configuree."}, status=500)
+
+    client = Groq(api_key=api_key)
+    results = []
+
+    for theme in themes:
+        keywords = theme.get_keywords_list()
+        if not keywords:
+            continue
+
+        prompt = f"""Voici des mots-cles de veille : {json.dumps(keywords, ensure_ascii=False)}
+
+Pour chaque mot-cle, donne sa traduction dans l'autre langue (francais->anglais ou anglais->francais).
+Ne duplique pas si le mot-cle existe deja dans les deux langues.
+
+Reponds UNIQUEMENT en JSON : un tableau de strings avec les traductions UNIQUEMENT (pas les originaux).
+Exemple: si input = ["cybersecurite", "startup"], reponse = ["cybersecurity", "startup"]
+Si un mot est identique dans les deux langues (ex: "startup"), ne le repete pas."""
+
+        try:
+            response = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                max_tokens=500,
+            )
+
+            usage = response.usage
+            AIUsageLog.objects.create(
+                feature="other",
+                model="llama-3.3-70b-versatile",
+                prompt_tokens=usage.prompt_tokens,
+                completion_tokens=usage.completion_tokens,
+                total_tokens=usage.total_tokens,
+            )
+
+            text = response.choices[0].message.content.strip()
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+
+            translations = json.loads(text.strip())
+            if not isinstance(translations, list):
+                continue
+
+            # Ajouter les traductions aux mots-cles existants
+            existing_lower = {k.lower() for k in keywords}
+            new_keywords = [t for t in translations if t.lower() not in existing_lower]
+            all_keywords = keywords + new_keywords
+
+            theme.keywords = ",".join(all_keywords)
+            theme.save(update_fields=["keywords"])
+
+            results.append({
+                "theme": theme.name,
+                "before": keywords,
+                "added": new_keywords,
+                "total": len(all_keywords),
+            })
+
+        except Exception as e:
+            results.append({
+                "theme": theme.name,
+                "error": str(e)[:200],
+            })
+
+    return Response({
+        "message": f"{len(results)} themes traites",
+        "results": results,
+    })
