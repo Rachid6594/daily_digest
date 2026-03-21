@@ -113,7 +113,7 @@ function App() {
           <FiMail size={80} />
         </div>
 
-        <h1>Restez informe,<br />sans effort.</h1>
+        <h1>Restez informe,<br/>sans effort.</h1>
         <div className="hero-sub-title">L'actualite curatee par IA, livree chaque matin.</div>
 
         <div className="sources-row">
