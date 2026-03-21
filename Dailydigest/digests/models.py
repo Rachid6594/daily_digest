@@ -7,7 +7,7 @@ class Article(models.Model):
     source = models.ForeignKey("themes.Source", on_delete=models.CASCADE, related_name="articles")
 
     title = models.CharField(max_length=500)
-    url = models.URLField(unique=True)
+    url = models.URLField(max_length=2000, unique=True)
     content_preview = models.TextField(blank=True, help_text="Premiers 500 caracteres du contenu")
 
     published_at = models.DateTimeField(null=True, blank=True)

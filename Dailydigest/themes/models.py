@@ -11,11 +11,11 @@ class Source(models.Model):
     ]
 
     name = models.CharField(max_length=255, help_text="Nom du site/source")
-    url = models.URLField(unique=True)
+    url = models.URLField(max_length=2000, unique=True)
     source_type = models.CharField(max_length=10, choices=SOURCE_TYPES, default="rss")
 
     description = models.TextField(blank=True)
-    logo_url = models.URLField(blank=True, null=True)
+    logo_url = models.URLField(max_length=2000, blank=True, null=True)
     is_active = models.BooleanField(default=True)
 
     last_scraped = models.DateTimeField(null=True, blank=True)
@@ -43,7 +43,7 @@ class CuratedSource(models.Model):
     ]
 
     name = models.CharField(max_length=255)
-    url = models.URLField(unique=True)
+    url = models.URLField(max_length=2000, unique=True)
     source_type = models.CharField(max_length=10, choices=SOURCE_TYPES, default="rss")
     description = models.TextField(blank=True, help_text="Description courte de la source")
 
