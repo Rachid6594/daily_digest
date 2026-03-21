@@ -14,14 +14,16 @@ from digests.models import Article
 logger = logging.getLogger(__name__)
 
 
-def get_filtered_articles(theme: Theme, days: int = 2) -> list[Article]:
+def get_filtered_articles(theme: Theme, days: int = 2, force: bool = False) -> list[Article]:
     """
     Retourne les articles des sources du theme
     qui matchent au moins 1 mot-cle dans le titre ou le preview.
     Limite aux articles des N derniers jours.
+    En mode force, etend a 7 jours et fallback sans filtre si 0 resultats.
     """
     source_ids = theme.sources.values_list("id", flat=True)
-    cutoff = timezone.now() - timedelta(days=days)
+    search_days = 7 if force else days
+    cutoff = timezone.now() - timedelta(days=search_days)
 
     # Tous les articles recents des sources du theme
     articles = Article.objects.filter(
@@ -45,6 +47,13 @@ def get_filtered_articles(theme: Theme, days: int = 2) -> list[Article]:
     logger.info(
         f"Theme '{theme.name}': {articles.count()} articles -> {len(matched)} apres filtre mots-cles"
     )
+
+    # Mode force : si 0 apres filtre, prendre les plus recents sans filtre
+    if not matched and force and articles.exists():
+        matched = list(articles.order_by("-scraped_at")[:20])
+        logger.info(
+            f"Theme '{theme.name}': mode force, fallback sans filtre -> {len(matched)} articles"
+        )
 
     return matched[:50]  # Cap a 50 pour l'IA
 

@@ -150,13 +150,14 @@ def _generate_digest_tracked(theme: Theme, run: PipelineRun, idx: int, total: in
     try:
         # Filtre mots-cles
         run.log_step("filtering", f"Filtrage mots-cles : {theme.name}")
-        filtered = get_filtered_articles(theme)
+        filtered = get_filtered_articles(theme, force=force)
 
         if not filtered:
-            digest.status = "ready"
+            digest.status = "failed"
+            digest.error_message = "Aucun article trouve"
             digest.save()
-            run.log_step("processing", f"Theme ({idx}/{total}) : {theme.name}", "0 articles apres filtre")
-            return digest
+            run.log_step("processing", f"Theme ({idx}/{total}) : {theme.name}", "0 articles, digest annule")
+            return None
 
         run.log_step("ranking", f"Ranking IA : {theme.name} ({len(filtered)} articles)")
 
