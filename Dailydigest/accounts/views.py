@@ -237,13 +237,18 @@ def me_view(request):
 def google_oauth_view(request):
     """Connexion/inscription via Google. Recoit le credential (ID token) du frontend."""
     import json
+    import logging
     from urllib.request import urlopen
+
+    logger = logging.getLogger(__name__)
 
     credential = request.data.get('credential')
     if not credential:
         return Response({"error": "Token Google manquant."}, status=status.HTTP_400_BAD_REQUEST)
 
     google_client_id = settings.GOOGLE_CLIENT_ID
+    logger.info(f"Google Client ID from settings: {google_client_id[:20]}..." if google_client_id else "Google Client ID: NOT SET")
+
     if not google_client_id:
         return Response({"error": "Google OAuth non configure."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -258,6 +263,9 @@ def google_oauth_view(request):
         payload = parts[1]
         payload += "=" * (4 - len(payload) % 4)  # padding base64
         decoded = json.loads(base64.urlsafe_b64decode(payload))
+
+        logger.info(f"Token audience: {decoded.get('aud')}")
+        logger.info(f"Expected client_id: {google_client_id}")
 
         # Verifier l'audience (client_id)
         if decoded.get("aud") != google_client_id:
