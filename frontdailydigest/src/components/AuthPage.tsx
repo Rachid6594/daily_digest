@@ -11,9 +11,19 @@ import {
 } from 'react-icons/fi'
 import { HiOutlineNewspaper } from 'react-icons/hi2'
 import './AuthPage.css'
-import { API_AUTH_URL, GOOGLE_CLIENT_ID } from '../config'
+import { API_AUTH_URL, GOOGLE_CLIENT_ID, API_URL as TRACK_API_URL } from '../config'
 
 const API_URL = API_AUTH_URL
+
+function trackEvent(eventType: string, extraData: any = {}) {
+  const sessionId = sessionStorage.getItem('session_id') || Math.random().toString(36).substring(7)
+  sessionStorage.setItem('session_id', sessionId)
+  fetch(`${TRACK_API_URL}/track/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_type: eventType, session_id: sessionId, extra_data: extraData }),
+  }).catch(() => {})
+}
 
 declare global {
   interface Window {
@@ -63,6 +73,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         localStorage.setItem('access_token', data.tokens.access)
         localStorage.setItem('refresh_token', data.tokens.refresh)
         localStorage.setItem('user', JSON.stringify(data.user))
+        trackEvent('auth_complete', { method: 'google' })
         if (onLogin) onLogin(data.user.is_admin)
       } else {
         setAlert({ type: 'error', message: data.error || 'Erreur de connexion Google.' })
@@ -73,6 +84,10 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
       setLoading(false)
     }
   }, [onLogin])
+
+  useEffect(() => {
+    trackEvent('landing_visit')
+  }, [])
 
   useEffect(() => {
     const initGoogle = () => {
@@ -120,6 +135,9 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const switchMode = (newMode: 'login' | 'register') => {
     setAlert(null)
     setMode(newMode)
+    if (newMode === 'register') {
+      trackEvent('auth_start')
+    }
   }
 
   const handleLogin = async (e: React.FormEvent) => {

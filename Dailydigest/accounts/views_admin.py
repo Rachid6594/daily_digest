@@ -521,3 +521,41 @@ Si un mot est identique dans les deux langues (ex: "startup"), ne le repete pas.
         "message": f"{len(results)} themes traites",
         "results": results,
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def admin_funnel_stats_view(request):
+    """Stats du funnel d'onboarding: landing → auth → theme creation."""
+    from digests.models import UserEvent
+    from django.db.models import Count
+
+    funnel_events = [
+        'landing_visit',
+        'auth_start',
+        'auth_complete',
+        'theme_step_1',
+        'theme_step_2',
+        'theme_created',
+    ]
+
+    stats = {}
+    for event in funnel_events:
+        count = UserEvent.objects.filter(event_type=event).values('session_id').distinct().count()
+        stats[event] = count
+
+    # Taux de conversion
+    landing = stats.get('landing_visit', 1)
+    auth_start = stats.get('auth_start', 0)
+    auth_complete = stats.get('auth_complete', 0)
+    theme_created = stats.get('theme_created', 0)
+
+    return Response({
+        'funnel': stats,
+        'conversion_rates': {
+            'landing_to_auth_start': round((auth_start / landing * 100) if landing else 0, 2),
+            'auth_start_to_complete': round((auth_complete / auth_start * 100) if auth_start else 0, 2),
+            'auth_to_theme': round((theme_created / auth_complete * 100) if auth_complete else 0, 2),
+            'total_conversion': round((theme_created / landing * 100) if landing else 0, 2),
+        }
+    })

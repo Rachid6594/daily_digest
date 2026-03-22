@@ -44,6 +44,17 @@ function parseKeywords(keywords: string | string[]): string[] {
   return []
 }
 
+function trackEvent(eventType: string, extraData: any = {}) {
+  const sessionId = sessionStorage.getItem('session_id') || Math.random().toString(36).substring(7)
+  sessionStorage.setItem('session_id', sessionId)
+
+  fetch(`${API_URL}/track/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_type: eventType, session_id: sessionId, extra_data: extraData }),
+  }).catch(() => {})
+}
+
 export default function ThemeSetup({ onDone }: ThemeSetupProps) {
   const [step, setStep] = useState(1)
   const [userText, setUserText] = useState('')
@@ -56,6 +67,7 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
   const [newSourceUrl, setNewSourceUrl] = useState('')
   const [created, setCreated] = useState(false)
   const [hasTheme, setHasTheme] = useState(false)
+  const [digestProgress, setDigestProgress] = useState(0)
 
   // Criteres de pertinence
   const [criteria, setCriteria] = useState<string[]>([])
@@ -64,6 +76,11 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
   const token = localStorage.getItem('access_token')
   const userData = localStorage.getItem('user')
   const username = userData ? JSON.parse(userData).username : ''
+
+  // Track step changes
+  useEffect(() => {
+    trackEvent(`theme_step_${step}`)
+  }, [step])
 
   useEffect(() => {
     if (!token) return
@@ -170,11 +187,12 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
     setStep(5)
   }
 
-  // Step 6 : creer le theme
+  // Step 6 : creer le theme et generer le digest
   const handleCreate = async () => {
     if (!selected) return
     setLoading(true)
     setError('')
+    setDigestProgress(0)
     try {
       const res = await fetch(`${API_URL}/themes/create/`, {
         method: 'POST',
@@ -183,7 +201,23 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || 'Erreur.'); return }
-      setCreated(true)
+
+      trackEvent('theme_created', { themeName: selected.name })
+
+      // Animer la barre de progression (fake, mais realiste)
+      let progress = 10
+      const interval = setInterval(() => {
+        progress += Math.random() * 20
+        if (progress > 95) progress = 95
+        setDigestProgress(Math.floor(progress))
+      }, 300)
+
+      // Attendre ~8s puis finir
+      setTimeout(() => {
+        clearInterval(interval)
+        setDigestProgress(100)
+        setTimeout(() => setCreated(true), 500)
+      }, 8000)
     } catch { setError('Impossible de contacter le serveur.') }
     finally { setLoading(false) }
   }
@@ -563,12 +597,32 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
 
             {error && <div className="ts-error">{error}</div>}
 
+            {digestProgress > 0 && digestProgress < 100 && (
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ fontSize: '14px', color: '#8a7060', marginBottom: '8px', fontWeight: '600' }}>
+                  Generation du digest en cours... {digestProgress}%
+                </div>
+                <div style={{ width: '100%', height: '8px', background: '#ede8df', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    background: '#a0542a',
+                    width: `${digestProgress}%`,
+                    transition: 'width 0.3s ease',
+                  }} />
+                </div>
+              </div>
+            )}
+
             <div className="ts-confirm-actions">
-              <button className="ts-btn-outline" onClick={() => { setStep(5); setError('') }}>
+              <button className="ts-btn-outline" onClick={() => { setStep(5); setError('') }} disabled={digestProgress > 0 && digestProgress < 100}>
                 <FiArrowLeft /> Modifier les criteres
               </button>
-              <button className="ts-btn-primary" onClick={handleCreate} disabled={loading}>
-                {loading ? <><FiLoader className="ts-spin" /> Creation...</> : <>Confirmer et activer <FiCheckCircle /></>}
+              <button className="ts-btn-primary" onClick={handleCreate} disabled={loading || (digestProgress > 0 && digestProgress < 100)}>
+                {digestProgress > 0 && digestProgress < 100 ? (
+                  <><FiLoader className="ts-spin" /> Generation du digest...</>
+                ) : (
+                  <>Confirmer et activer <FiCheckCircle /></>
+                )}
               </button>
             </div>
           </div>

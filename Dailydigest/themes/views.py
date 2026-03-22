@@ -304,7 +304,10 @@ Pas de champ type, on le detecte automatiquement."""
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_theme(request):
-    """Cree un theme avec ses sources."""
+    """Cree un theme avec ses sources et genere un digest immediat."""
+    from django.utils import timezone
+    from datetime import timedelta
+
     name = request.data.get('name', '').strip()
     description = request.data.get('description', '')
     keywords = request.data.get('keywords', [])
@@ -317,11 +320,26 @@ def create_theme(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    # Vérifier limite 1x par semaine
+    user = request.user
+    if user.last_theme_change:
+        time_since_change = timezone.now() - user.last_theme_change
+        if time_since_change < timedelta(days=7):
+            days_left = 7 - time_since_change.days
+            return Response(
+                {"error": f"Vous pouvez changer votre theme une fois par semaine. Reessayez dans {days_left} jour(s)."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
     if Theme.objects.filter(user=request.user).exists():
         return Response(
             {"error": "Vous avez deja un theme. Supprimez-le avant d'en creer un nouveau."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    # Marquer le changement de theme
+    user.last_theme_change = timezone.now()
+    user.save(update_fields=['last_theme_change'])
 
     theme = Theme.objects.create(
         user=request.user,
@@ -345,8 +363,10 @@ def create_theme(request):
 
     # Lancer le scraping immediat des sources en arriere-plan
     try:
-        from digests.tasks import scrape_theme_sources
+        from digests.tasks import scrape_theme_sources, generate_and_send_first_digest
         scrape_theme_sources.delay(theme.id)
+        # Generer et envoyer le premier digest immediatement
+        generate_and_send_first_digest.delay(theme.id)
     except Exception:
         pass  # Si Redis n'est pas dispo, on skip silencieusement
 

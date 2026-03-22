@@ -14,6 +14,7 @@ class User(AbstractUser):
         choices=[("fr", "Français"), ("en", "English")],
     )
     marketing_consent = models.BooleanField(default=False, help_text="Accepte les emails marketing")
+    last_theme_change = models.DateTimeField(null=True, blank=True, help_text="Derniere modification de theme (limite 1x/semaine)")
 
     class Meta:
         verbose_name = "User"

@@ -71,3 +71,32 @@ def scrape_theme_sources(theme_id):
             logger.info(f"Premier digest genere pour '{theme.name}' (status: {digest.status})")
     else:
         logger.info(f"Aucun article trouve, pas de digest genere pour '{theme.name}'")
+
+
+@shared_task(name="digests.tasks.generate_and_send_first_digest")
+def generate_and_send_first_digest(theme_id):
+    """
+    Genere et envoie immediatement le premier digest apres creation du theme.
+    Attends quelques secondes que les articles soient scrapes, puis envoie.
+    """
+    import time
+    from themes.models import Theme
+    from digests.models import Digest
+    from digests.emailer import send_digest_email
+
+    try:
+        theme = Theme.objects.get(id=theme_id)
+    except Theme.DoesNotExist:
+        logger.error(f"Theme {theme_id} introuvable")
+        return
+
+    # Attendre jusqu'a 30s que le digest soit genere
+    for attempt in range(30):
+        digest = Digest.objects.filter(theme=theme, user=theme.user).order_by('-created_at').first()
+        if digest and digest.status == 'ready':
+            logger.info(f"Digest pret, envoi immediatement a {theme.user.email}")
+            send_digest_email(digest)
+            return
+        time.sleep(1)
+
+    logger.warning(f"Timeout: digest non pret apres 30s pour theme {theme_id}")

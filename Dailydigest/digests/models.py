@@ -207,3 +207,47 @@ class AIUsageLog(models.Model):
 
     def __str__(self):
         return f"{self.feature} - {self.total_tokens} tokens ({self.created_at:%d/%m %H:%M})"
+
+
+class UserEvent(models.Model):
+    """Tracking des etapes d'onboarding et d'interaction utilisateur."""
+    EVENT_CHOICES = [
+        ("landing_visit", "Visite landing"),
+        ("auth_start", "Debut d'inscription"),
+        ("auth_complete", "Inscription completee"),
+        ("theme_step_1", "Step 1 - Description"),
+        ("theme_step_2", "Step 2 - Theme selection"),
+        ("theme_step_3", "Step 3 - Confirmation"),
+        ("theme_step_4", "Step 4 - Sources"),
+        ("theme_step_5", "Step 5 - Criteres"),
+        ("theme_step_6", "Step 6 - Recap"),
+        ("theme_created", "Theme cree"),
+        ("digest_opened", "Email digest ouvert"),
+        ("article_clicked", "Article clique"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True,
+        related_name="events", help_text="User, null si non authentifie (landing)"
+    )
+    event_type = models.CharField(max_length=30, choices=EVENT_CHOICES)
+    session_id = models.CharField(max_length=100, blank=True, help_text="Session tracking")
+
+    # Contexte additionnel
+    extra_data = models.JSONField(default=dict, blank=True, help_text="Donnees supplementaires (step, error, etc.)")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "-created_at"]),
+            models.Index(fields=["event_type", "-created_at"]),
+            models.Index(fields=["session_id", "-created_at"]),
+        ]
+        verbose_name = "User Event"
+        verbose_name_plural = "User Events"
+
+    def __str__(self):
+        user_info = self.user.email if self.user else "anonymous"
+        return f"{user_info} - {self.event_type} ({self.created_at:%d/%m %H:%M})"

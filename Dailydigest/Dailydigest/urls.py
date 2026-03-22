@@ -23,13 +23,17 @@ from accounts.views_admin import (
     admin_run_pipeline_view, admin_pipeline_status_view,
     admin_curated_sources_view, admin_curated_source_detail_view,
     admin_ai_usage_view, admin_purge_view, admin_translate_keywords_view,
+    admin_funnel_stats_view,
 )
+from digests.views import track_event
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/auth/", include("accounts.urls")),
     path("api/themes/", include("themes.urls")),
+    path("api/track/", track_event, name="track-event"),
     path("api/admin/stats/", admin_stats_view, name="admin-stats"),
+    path("api/admin/funnel/", admin_funnel_stats_view, name="admin-funnel"),
     path("api/admin/users/", admin_users_view, name="admin-users"),
     path("api/admin/themes/", admin_themes_view, name="admin-themes"),
     path("api/admin/sources/", admin_sources_view, name="admin-sources"),
