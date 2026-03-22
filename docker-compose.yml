@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     env_file: ./Dailydigest/.env
     ports:
-      - "8000:8000"
+      - "8003:8000"
     depends_on:
       - redis
     volumes:
@@ -41,11 +41,11 @@ services:
     build:
       context: ./frontdailydigest
       args:
-        VITE_API_URL: https://daily-digest.lanaya.shop
+        VITE_API_URL: https://api-digest.lanaya.shop
     container_name: dd-frontend
     restart: unless-stopped
     ports:
-      - "3080:80"
+      - "3003:80"
     depends_on:
       - backend
 
