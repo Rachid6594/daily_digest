@@ -98,6 +98,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         })
         // Délai pour s'assurer que le DOM est prêt
         setTimeout(() => {
+          if (!window.google) return
           const loginBtn = document.getElementById('google-btn-login')
           const registerBtn = document.getElementById('google-btn-register')
           if (loginBtn) {
