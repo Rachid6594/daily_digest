@@ -41,7 +41,7 @@ services:
     build:
       context: ./frontdailydigest
       args:
-        VITE_API_URL: https://daily-digest.lanaya.shop
+        VITE_API_URL: https://api-digest.lanaya.shop
     container_name: dd-frontend
     restart: unless-stopped
     ports:
