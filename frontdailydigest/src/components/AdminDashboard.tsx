@@ -32,7 +32,7 @@ import { FaFacebook, FaLinkedin, FaTwitter } from 'react-icons/fa'
 import './AdminDashboard.css'
 import { API_URL } from '../config'
 
-type AdminSection = 'dashboard' | 'users' | 'themes' | 'sources' | 'digests' | 'scraping' | 'curated' | 'calendar' | 'post-detail' | 'ai-usage' | 'maintenance'
+type AdminSection = 'dashboard' | 'users' | 'themes' | 'sources' | 'digests' | 'scraping' | 'curated' | 'calendar' | 'post-detail' | 'ai-usage' | 'maintenance' | 'funnel'
 
 interface Stats {
   total_users: number

@@ -436,7 +436,9 @@ def match_curated_sources(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_theme(request, theme_id):
-    """Supprime un theme de l'utilisateur."""
+    """Supprime un theme de l'utilisateur et marque le changement pour la limite 1x/semaine."""
+    from django.utils import timezone
+
     try:
         theme = Theme.objects.get(id=theme_id, user=request.user)
     except Theme.DoesNotExist:
@@ -445,4 +447,10 @@ def delete_theme(request, theme_id):
             status=status.HTTP_404_NOT_FOUND,
         )
     theme.delete()
+
+    # Marquer la suppression comme un changement de theme (limite 1x/semaine)
+    user = request.user
+    user.last_theme_change = timezone.now()
+    user.save(update_fields=['last_theme_change'])
+
     return Response({"message": "Theme supprime."}, status=status.HTTP_200_OK)

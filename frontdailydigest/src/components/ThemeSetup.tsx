@@ -633,9 +633,20 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
           <div className="ts-content ts-done">
             <FiCheckCircle size={56} className="ts-done-icon" />
             <h1>Theme cree !</h1>
-            <p>
-              <strong>{selected.name}</strong> est actif avec {sources.length} sources. Votre premier digest arrive demain matin a 7h.
-            </p>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ marginBottom: '12px' }}>
+                <strong>{selected.name}</strong> est actif avec {sources.length} sources.
+              </p>
+              <p style={{ color: '#27ae60', fontWeight: '600', marginBottom: '8px' }}>
+                ✓ Votre premier digest vient d'être envoyé !
+              </p>
+              <p style={{ fontSize: '14px', color: '#8a7060', marginBottom: '16px' }}>
+                Vérifiez vos emails (et dossier spam) pour le recevoir.
+              </p>
+              <p style={{ fontSize: '13px', color: '#8a7060' }}>
+                Les prochains digests arriveront tous les jours à 7h du matin.
+              </p>
+            </div>
             <div className="ts-done-actions">
               <button className="ts-btn-outline" onClick={() => {
                 setStep(1); setUserText(''); setSuggestions([]); setSelected(null)

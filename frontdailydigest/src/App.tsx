@@ -33,14 +33,16 @@ import AuthPage from './components/AuthPage'
 import VerifyEmail from './components/VerifyEmail'
 import HomePage from './components/HomePage'
 import AdminDashboard from './components/AdminDashboard'
+import AdminFunnelPage from './components/AdminFunnelPage'
 import ThemeSetup from './components/ThemeSetup'
 import PreferencesPage from './components/PreferencesPage'
 
-type Page = 'landing' | 'auth' | 'verify' | 'home' | 'admin' | 'theme-setup' | 'preferences'
+type Page = 'landing' | 'auth' | 'verify' | 'home' | 'admin' | 'admin-funnel' | 'theme-setup' | 'preferences'
 
 function getPage(): Page {
   const hash = window.location.hash
   if (hash.startsWith('#/verify')) return 'verify'
+  if (hash === '#/admin/funnel') return 'admin-funnel'
   if (hash.startsWith('#/admin')) return 'admin'
   if (hash === '#/theme-setup') return 'theme-setup'
   if (hash === '#/preferences') return 'preferences'
@@ -81,6 +83,7 @@ function App() {
   if (page === 'verify') return <VerifyEmail />
   if (page === 'auth') return <AuthPage onLogin={(isAdmin) => navigate(isAdmin ? 'admin' : 'home')} />
   if (page === 'home') return <HomePage />
+  if (page === 'admin-funnel') return <AdminFunnelPage />
   if (page === 'admin') return <AdminDashboard />
   if (page === 'preferences') return <PreferencesPage />
   if (page === 'theme-setup') return <ThemeSetup onDone={() => navigate('home')} />
