@@ -13,7 +13,8 @@
       "Bash(.venv/Scripts/python -c \"from digests.emailer import send_digest_email, send_all_pending_digests; print\\(''OK''\\)\")",
       "Bash(.venv/Scripts/python manage.py shell -c \"from digests.emailer import send_digest_email, send_all_pending_digests; print\\(''Import OK''\\)\")",
       "Bash(nslookup db.gzhusnvgpntwaktelhtz.supabase.co)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(xargs grep:*)"
     ]
   }
 }

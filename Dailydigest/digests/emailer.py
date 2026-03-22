@@ -160,3 +160,37 @@ def send_all_pending_digests():
 
     logger.info(f"Envoi termine: {sent} envoyes, {failed} echoues")
     return {"sent": sent, "failed": failed}
+
+
+def send_digests_respecting_user_time():
+    """
+    Envoie les digests 'ready' si c'est l'heure preferee de l'utilisateur.
+    Concu pour etre appele toutes les heures par Celery Beat.
+    """
+    from datetime import datetime
+
+    digests = Digest.objects.filter(status="ready").select_related("user", "theme")
+    sent = 0
+    failed = 0
+    skipped = 0
+
+    current_time = timezone.now().time()
+
+    for digest in digests:
+        user_preferred_time = digest.user.preferred_time
+
+        # Vérifier si on est dans l'heure préférée (tolerance de 1 heure)
+        # Ex: si preferred_time = 07:00, on envoie entre 07:00 et 07:59
+        hour_match = (current_time.hour == user_preferred_time.hour)
+
+        if hour_match:
+            if send_digest_email(digest):
+                sent += 1
+            else:
+                failed += 1
+        else:
+            skipped += 1
+            logger.debug(f"Digest {digest.id} skip: utilisateur prefer {user_preferred_time}, current {current_time.time()}")
+
+    logger.info(f"Envoi avec verification heure: {sent} envoyes, {failed} echoues, {skipped} ignores")
+    return {"sent": sent, "failed": failed, "skipped": skipped}

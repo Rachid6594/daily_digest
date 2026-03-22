@@ -86,7 +86,7 @@ interface ThemeItem {
   id: number
   name: string
   user_email: string
-  keywords: string[]
+  keywords: string | string[]
   is_active: boolean
   sources_count: number
   articles_last_digest: number
@@ -196,6 +196,18 @@ interface PipelineStatus {
   total_digests_created: number
   steps_log: { step: string; label: string; detail: string; time: string }[]
   error_message: string
+}
+
+function parseKeywords(keywords: string | string[]): string[] {
+  if (Array.isArray(keywords)) return keywords
+  if (typeof keywords === 'string') {
+    try {
+      const parsed = JSON.parse(keywords)
+      if (Array.isArray(parsed)) return parsed
+    } catch {}
+    return keywords.split(',').map(k => k.trim()).filter(k => k)
+  }
+  return []
 }
 
 export default function AdminDashboard() {
@@ -805,11 +817,11 @@ export default function AdminDashboard() {
                       <td>{t.user_email}</td>
                       <td>
                         <div className="admin-keywords">
-                          {t.keywords.slice(0, 4).map((k, i) => (
+                          {parseKeywords(t.keywords).slice(0, 4).map((k, i) => (
                             <span key={i} className="admin-keyword-pill">{k}</span>
                           ))}
-                          {t.keywords.length > 4 && (
-                            <span className="admin-keyword-more">+{t.keywords.length - 4}</span>
+                          {parseKeywords(t.keywords).length > 4 && (
+                            <span className="admin-keyword-more">+{parseKeywords(t.keywords).length - 4}</span>
                           )}
                         </div>
                       </td>

@@ -227,6 +227,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'digests.tasks.run_daily_pipeline',
         'schedule': crontab(hour=6, minute=0),  # Tous les jours a 6h du matin
     },
+    'send-digests-user-time': {
+        'task': 'digests.tasks.send_digests_at_user_time',
+        'schedule': crontab(minute=0),  # Toutes les heures (a :00)
+    },
 }
 
 # Default primary key field type

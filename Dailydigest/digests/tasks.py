@@ -21,6 +21,19 @@ def run_daily_pipeline(run_id=None, force=False):
     logger.info("Pipeline termine")
 
 
+@shared_task(name="digests.tasks.send_digests_at_user_time")
+def send_digests_at_user_time():
+    """
+    Envoie les digests 'ready' si c'est l'heure preferee de chaque utilisateur.
+    S'execute toutes les heures via Celery Beat.
+    """
+    from digests.emailer import send_digests_respecting_user_time
+    logger.info("Lancement envoi digests avec verification heure utilisateur")
+    result = send_digests_respecting_user_time()
+    logger.info(f"Resultat: {result}")
+    return result
+
+
 @shared_task(name="digests.tasks.scrape_theme_sources")
 def scrape_theme_sources(theme_id):
     """

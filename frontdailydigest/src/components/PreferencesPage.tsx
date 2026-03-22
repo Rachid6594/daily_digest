@@ -24,7 +24,7 @@ interface Theme {
   id: number
   name: string
   description: string
-  keywords: string[]
+  keywords: string | string[]
   is_active: boolean
   frequency: string
   created_at: string
@@ -39,6 +39,18 @@ interface UserData {
   preferred_time: string
   is_admin: boolean
   date_joined: string
+}
+
+function parseKeywords(keywords: string | string[]): string[] {
+  if (Array.isArray(keywords)) return keywords
+  if (typeof keywords === 'string') {
+    try {
+      const parsed = JSON.parse(keywords)
+      if (Array.isArray(parsed)) return parsed
+    } catch {}
+    return keywords.split(',').map(k => k.trim()).filter(k => k)
+  }
+  return []
 }
 
 export default function PreferencesPage() {
@@ -222,11 +234,11 @@ export default function PreferencesPage() {
                     <p className="pref-theme-desc">{themes[0].description}</p>
                   )}
 
-                  {themes[0].keywords.length > 0 && (
+                  {parseKeywords(themes[0].keywords).length > 0 && (
                     <>
                       <div className="pref-theme-section-label">Mots-cles</div>
                       <div className="pref-keywords">
-                        {themes[0].keywords.map((kw, i) => (
+                        {parseKeywords(themes[0].keywords).map((kw, i) => (
                           <span key={i} className="pref-keyword">
                             {kw}
                           </span>

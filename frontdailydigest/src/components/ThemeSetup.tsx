@@ -18,7 +18,7 @@ import { API_URL } from '../config'
 interface Suggestion {
   name: string
   description: string
-  keywords: string[]
+  keywords: string | string[]
 }
 
 interface SourceItem {
@@ -30,6 +30,18 @@ interface SourceItem {
 
 interface ThemeSetupProps {
   onDone?: () => void
+}
+
+function parseKeywords(keywords: string | string[]): string[] {
+  if (Array.isArray(keywords)) return keywords
+  if (typeof keywords === 'string') {
+    try {
+      const parsed = JSON.parse(keywords)
+      if (Array.isArray(parsed)) return parsed
+    } catch {}
+    return keywords.split(',').map(k => k.trim()).filter(k => k)
+  }
+  return []
 }
 
 export default function ThemeSetup({ onDone }: ThemeSetupProps) {
@@ -295,7 +307,7 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
                   </div>
                   <p className="ts-suggestion-desc">{s.description}</p>
                   <div className="ts-keywords">
-                    {s.keywords.map((k, j) => (
+                    {parseKeywords(s.keywords).map((k, j) => (
                       <span key={j} className="ts-keyword">{k}</span>
                     ))}
                   </div>
@@ -323,7 +335,7 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
               <div className="ts-confirm-section">
                 <h4>Mots-cles</h4>
                 <div className="ts-keywords">
-                  {selected.keywords.map((k, j) => (
+                  {parseKeywords(selected.keywords).map((k, j) => (
                     <span key={j} className="ts-keyword">{k}</span>
                   ))}
                 </div>
@@ -511,7 +523,7 @@ export default function ThemeSetup({ onDone }: ThemeSetupProps) {
               <div className="ts-confirm-section">
                 <h4>Mots-cles</h4>
                 <div className="ts-keywords">
-                  {selected.keywords.map((k, j) => (
+                  {parseKeywords(selected.keywords).map((k, j) => (
                     <span key={j} className="ts-keyword">{k}</span>
                   ))}
                 </div>
