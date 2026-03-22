@@ -430,7 +430,11 @@
 .auth-google-wrap {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-bottom: 8px;
+  min-width: 100%;
+  min-height: 40px;
+  width: 100%;
 }
 
 /* Mobile switch link (hidden on desktop, shown on mobile) */
@@ -491,10 +495,17 @@
 
 @media (max-width: 480px) {
   .auth-form-panel {
-    padding: 40px 20px;
+    padding: 40px 16px;
   }
 
   .auth-card {
     max-width: 100%;
+    width: 100%;
+  }
+
+  .auth-google-wrap {
+    min-width: 100%;
+    width: 100%;
+    overflow: visible;
   }
 }

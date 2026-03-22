@@ -96,26 +96,29 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
           client_id: GOOGLE_CLIENT_ID,
           callback: handleGoogleResponse,
         })
-        const loginBtn = document.getElementById('google-btn-login')
-        const registerBtn = document.getElementById('google-btn-register')
-        if (loginBtn) {
-          window.google.accounts.id.renderButton(loginBtn, {
-            theme: 'outline',
-            size: 'large',
-            width: '100%',
-            text: 'signin_with',
-            locale: 'fr',
-          })
-        }
-        if (registerBtn) {
-          window.google.accounts.id.renderButton(registerBtn, {
-            theme: 'outline',
-            size: 'large',
-            width: '100%',
-            text: 'signup_with',
-            locale: 'fr',
-          })
-        }
+        // Délai pour s'assurer que le DOM est prêt
+        setTimeout(() => {
+          const loginBtn = document.getElementById('google-btn-login')
+          const registerBtn = document.getElementById('google-btn-register')
+          if (loginBtn) {
+            window.google.accounts.id.renderButton(loginBtn, {
+              theme: 'outline',
+              size: 'large',
+              width: '100%',
+              text: 'signin_with',
+              locale: 'fr',
+            })
+          }
+          if (registerBtn) {
+            window.google.accounts.id.renderButton(registerBtn, {
+              theme: 'outline',
+              size: 'large',
+              width: '100%',
+              text: 'signup_with',
+              locale: 'fr',
+            })
+          }
+        }, 50)
       }
     }
     // Le script GSI peut ne pas etre charge tout de suite
