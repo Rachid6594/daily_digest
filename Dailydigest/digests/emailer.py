@@ -45,11 +45,18 @@ def send_digest_email(digest: Digest) -> bool:
                   </div>
                 </td>
                 <td>
-                  <a href="{article.url}" style="font-size: 16px; font-weight: 700; color: #3d1f0a;
-                     text-decoration: none; line-height: 1.3;">{article.title}</a>
-                  <p style="font-size: 13px; color: #8a7060; margin: 6px 0 8px; line-height: 1.5;">
+                  <h3 style="font-size: 16px; font-weight: 700; color: #3d1f0a; margin: 0 0 8px; line-height: 1.3;">
+                    {article.title}
+                  </h3>
+                  <p style="font-size: 13px; color: #8a7060; margin: 0 0 12px; line-height: 1.5;">
                     {item.summary}
                   </p>
+                  <div style="margin-bottom: 8px;">
+                    <a href="{article.url}" style="display: inline-block; background: #a0542a; color: #fff; padding: 6px 16px;
+                       border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 12px;">
+                      Voir plus →
+                    </a>
+                  </div>
                   <span style="font-size: 11px; color: {score_color}; font-weight: 600;">
                     Pertinence: {item.relevance_score}/10
                   </span>
