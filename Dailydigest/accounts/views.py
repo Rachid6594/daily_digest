@@ -232,7 +232,6 @@ def me_view(request):
 
 
 @api_view(['POST'])
-@api_view(['POST'])
 @permission_classes([AllowAny])
 def google_oauth_view(request):
     """Connexion/inscription via Google. Recoit le credential (ID token) du frontend."""
