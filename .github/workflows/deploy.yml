@@ -52,13 +52,22 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 2002
+          debug: true
+          command_timeout: 10m
           script: |
             cd ${{ secrets.APP_PATH }}
+            echo "=== Git pull ==="
             git pull origin main
+            echo "=== Docker compose down ==="
             docker compose down
+            echo "=== Docker compose build ==="
             docker compose build --no-cache
+            echo "=== Docker compose up ==="
             docker compose up -d
+            echo "=== Django migrate ==="
             docker compose exec -T backend python manage.py migrate --noinput
+            echo "=== Django collectstatic ==="
             docker compose exec -T backend python manage.py collectstatic --noinput
+            echo "=== Caddy reload ==="
             caddy reload --config /etc/caddy/Caddyfile 2>/dev/null || true
-            echo "Deploiement termine avec succes"
+            echo "✓ Deploiement termine avec succes"
