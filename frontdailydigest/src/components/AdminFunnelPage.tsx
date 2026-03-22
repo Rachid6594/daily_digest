@@ -40,7 +40,7 @@ export default function AdminFunnelPage() {
         setStats(data)
         setLoading(false)
       })
-      .catch((e) => {
+      .catch(() => {
         setError('Impossible de charger les stats')
         setLoading(false)
       })
