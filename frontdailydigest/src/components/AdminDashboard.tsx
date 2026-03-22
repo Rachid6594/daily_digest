@@ -27,6 +27,7 @@ import {
 import {
   HiOutlineSparkles,
   HiOutlineCpuChip,
+  HiOutlineChartBar,
 } from 'react-icons/hi2'
 import { FaFacebook, FaLinkedin, FaTwitter } from 'react-icons/fa'
 import './AdminDashboard.css'
@@ -568,6 +569,7 @@ export default function AdminDashboard() {
     { key: 'digests', icon: <FiMail />, label: 'Digests' },
     { key: 'scraping', icon: <HiOutlineCpuChip />, label: 'Scraping' },
     { key: 'curated', icon: <FiBookmark />, label: 'Base curatee' },
+    { key: 'funnel', icon: <HiOutlineChartBar />, label: 'Funnel' },
     { key: 'ai-usage', icon: <HiOutlineCpuChip />, label: 'Usage IA' },
     { key: 'maintenance', icon: <FiDatabase />, label: 'Maintenance' },
   ]
@@ -612,7 +614,14 @@ export default function AdminDashboard() {
             <button
               key={item.key}
               className={`admin-nav-item ${section === item.key ? 'active' : ''}`}
-              onClick={() => { loadSection(item.key); setSidebarOpen(false); }}
+              onClick={() => {
+                if (item.key === 'funnel') {
+                  window.location.hash = '#/admin/funnel'
+                } else {
+                  loadSection(item.key)
+                  setSidebarOpen(false)
+                }
+              }}
             >
               {item.icon} {item.label}
             </button>
