@@ -7,6 +7,9 @@ import {
   FiPlus,
   FiLogOut,
   FiTrash2,
+  FiSmartphone,
+  FiCheck,
+  FiAlertCircle,
 } from 'react-icons/fi'
 import { HiOutlineNewspaper, HiOutlineSparkles } from 'react-icons/hi2'
 import './HomePage.css'
@@ -59,6 +62,13 @@ export default function PreferencesPage() {
   const [loading, setLoading] = useState(true)
   const [deletingTheme, setDeletingTheme] = useState(false)
 
+  // WhatsApp configuration
+  const [whatsappPhone, setWhatsappPhone] = useState('')
+  const [whatsappEnabled, setWhatsappEnabled] = useState(false)
+  const [whatsappLoading, setWhatsappLoading] = useState(false)
+  const [whatsappMessage, setWhatsappMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [editingWhatsapp, setEditingWhatsapp] = useState(false)
+
   const token = localStorage.getItem('access_token')
 
   useEffect(() => {
@@ -74,10 +84,15 @@ export default function PreferencesPage() {
       fetch(`${API_URL}/themes/`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((r) => r.json()),
+      fetch(`${API_URL}/auth/configure-whatsapp/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((r) => r.json()),
     ])
-      .then(([userData, themesData]) => {
+      .then(([userData, themesData, whatsappData]) => {
         setUser(userData)
         setThemes(themesData)
+        setWhatsappPhone(whatsappData.phone_number || '')
+        setWhatsappEnabled(whatsappData.whatsapp_enabled || false)
       })
       .catch(() => {
         localStorage.clear()
@@ -112,6 +127,35 @@ export default function PreferencesPage() {
       setThemes([])
     } catch { /* ignore */ }
     setDeletingTheme(false)
+  }
+
+  const handleSaveWhatsapp = async () => {
+    setWhatsappLoading(true)
+    setWhatsappMessage(null)
+    try {
+      const res = await fetch(`${API_URL}/auth/configure-whatsapp/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          phone_number: whatsappPhone,
+          whatsapp_enabled: whatsappEnabled,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setWhatsappMessage({ type: 'success', text: 'WhatsApp configure avec succes !' })
+        setEditingWhatsapp(false)
+      } else {
+        setWhatsappMessage({ type: 'error', text: data.error || 'Erreur lors de la sauvegarde' })
+      }
+    } catch (e) {
+      setWhatsappMessage({ type: 'error', text: 'Impossible de contacter le serveur' })
+    } finally {
+      setWhatsappLoading(false)
+    }
   }
 
   if (loading) {
@@ -192,6 +236,136 @@ export default function PreferencesPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* WHATSAPP */}
+          <div className="pref-card">
+            <div className="pref-card-header">
+              <FiSmartphone size={20} />
+              <h2>WhatsApp</h2>
+            </div>
+            {!editingWhatsapp ? (
+              <div className="pref-whatsapp-view">
+                {whatsappPhone ? (
+                  <>
+                    <div className="pref-info-item">
+                      <div className="pref-info-label">Numero WhatsApp</div>
+                      <div className="pref-info-value" style={{ fontSize: '14px', fontFamily: 'monospace' }}>
+                        {whatsappPhone}
+                      </div>
+                    </div>
+                    <div className="pref-info-item">
+                      <div className="pref-info-label">Digests par WhatsApp</div>
+                      <div className="pref-info-value">
+                        {whatsappEnabled ? (
+                          <span style={{ color: '#27ae60', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <FiCheck size={16} /> Actif
+                          </span>
+                        ) : (
+                          <span style={{ color: '#e67e22' }}>Desactive</span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#8a7060' }}>
+                    <p>Vous n'avez pas encore configure WhatsApp.</p>
+                    <p style={{ fontSize: '13px', marginTop: '8px' }}>
+                      Ajoutez votre numero pour recevoir vos digests par WhatsApp.
+                    </p>
+                  </div>
+                )}
+                <button
+                  className="pref-btn-primary"
+                  onClick={() => setEditingWhatsapp(true)}
+                  style={{ marginTop: '16px' }}
+                >
+                  {whatsappPhone ? 'Modifier' : 'Ajouter mon numero'}
+                </button>
+              </div>
+            ) : (
+              <div className="pref-whatsapp-edit">
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#3d1f0a', marginBottom: '8px' }}>
+                    Numero WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+33612345678"
+                    value={whatsappPhone}
+                    onChange={(e) => setWhatsappPhone(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ddd4c4',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontFamily: 'monospace',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                  <p style={{ fontSize: '12px', color: '#8a7060', marginTop: '6px' }}>
+                    Format: +33... (inclure le code pays)
+                  </p>
+                </div>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', marginBottom: '16px' }}>
+                  <input
+                    type="checkbox"
+                    checked={whatsappEnabled}
+                    onChange={(e) => setWhatsappEnabled(e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <span style={{ fontSize: '14px', color: '#3d1f0a' }}>
+                    Recevoir mes digests par WhatsApp
+                  </span>
+                </label>
+
+                {whatsappMessage && (
+                  <div
+                    style={{
+                      padding: '12px',
+                      borderRadius: '6px',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: whatsappMessage.type === 'success' ? '#e8f5e9' : '#ffebee',
+                      color: whatsappMessage.type === 'success' ? '#27ae60' : '#c62828',
+                      fontSize: '13px',
+                    }}
+                  >
+                    {whatsappMessage.type === 'success' ? <FiCheck size={16} /> : <FiAlertCircle size={16} />}
+                    {whatsappMessage.text}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    className="pref-btn-primary"
+                    onClick={handleSaveWhatsapp}
+                    disabled={whatsappLoading}
+                  >
+                    {whatsappLoading ? 'Sauvegarde...' : 'Enregistrer'}
+                  </button>
+                  <button
+                    onClick={() => setEditingWhatsapp(false)}
+                    style={{
+                      padding: '10px 20px',
+                      border: '1px solid #ddd4c4',
+                      borderRadius: '6px',
+                      backgroundColor: '#fff',
+                      color: '#3d1f0a',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* THEME */}

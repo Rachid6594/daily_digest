@@ -9,4 +9,5 @@ urlpatterns = [
     path('me/', views.me_view, name='me'),
     path('logout/', views.logout_view, name='logout'),
     path('google-oauth/', views.google_oauth_view, name='google-oauth'),
+    path('configure-whatsapp/', views.configure_whatsapp_view, name='configure-whatsapp'),
 ]

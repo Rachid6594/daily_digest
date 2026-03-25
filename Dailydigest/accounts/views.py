@@ -344,3 +344,45 @@ def logout_view(request):
     except Exception:
         pass
     return Response({"message": "Deconnexion reussie."})
+
+
+@api_view(['POST', 'GET'])
+@permission_classes([IsAuthenticated])
+def configure_whatsapp_view(request):
+    """Configurer ou recuperer la configuration WhatsApp de l'utilisateur."""
+    user = request.user
+
+    if request.method == 'POST':
+        phone_number = request.data.get('phone_number')
+        whatsapp_enabled = request.data.get('whatsapp_enabled')
+
+        if not phone_number:
+            return Response(
+                {"error": "Numero de telephone requis."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Valider le format du numero (optionnel mais recommande)
+        # Format attendu: +33612345678 ou +1234567890
+        if not phone_number.startswith('+') or len(phone_number) < 10:
+            return Response(
+                {"error": "Format de numero invalide. Utilisez le format +33..."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user.phone_number = phone_number
+        if whatsapp_enabled is not None:
+            user.whatsapp_enabled = bool(whatsapp_enabled)
+        user.save()
+
+        return Response({
+            "message": "Configuration WhatsApp mise a jour.",
+            "phone_number": user.phone_number,
+            "whatsapp_enabled": user.whatsapp_enabled,
+        })
+
+    # GET — retourner la configuration actuelle
+    return Response({
+        "phone_number": user.phone_number or "",
+        "whatsapp_enabled": user.whatsapp_enabled,
+    })

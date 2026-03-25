@@ -1,8 +1,9 @@
 """
-Envoi des digests par email aux utilisateurs.
+Envoi des digests par email et WhatsApp aux utilisateurs.
 Template HTML professionnel avec les articles selectionnes.
 """
 import logging
+import requests
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
@@ -153,6 +154,66 @@ def send_digest_email(digest: Digest) -> bool:
         return False
 
 
+def send_digest_via_whatsapp(digest: Digest) -> bool:
+    """Envoie un digest par WhatsApp si l'utilisateur a configure son numero."""
+    if digest.status != "ready":
+        logger.warning(f"Digest {digest.id} n'est pas pret (status={digest.status})")
+        return False
+
+    user = digest.user
+
+    # Vérifier que l'utilisateur a un numéro WhatsApp et a activé la fonction
+    if not user.phone_number or not user.whatsapp_enabled:
+        return False
+
+    items = digest.items.select_related("article").order_by("position")
+    if not items.exists():
+        logger.info(f"Digest {digest.id} vide, pas d'envoi WhatsApp")
+        return False
+
+    theme = digest.theme
+    today = timezone.now().strftime("%d/%m/%Y")
+
+    # Construire le message texte
+    message = f"🌍 *{theme.name.upper()}* - {today}\n\n"
+    message += f"Bonjour {user.username} ! Voici vos {items.count()} articles du jour :\n\n"
+
+    for item in items[:8]:  # Max 8 articles pour ne pas dépasser la limite WhatsApp
+        article = item.article
+        score_emoji = "🟢" if item.relevance_score >= 8 else "🟠" if item.relevance_score >= 6 else "🟡"
+        message += f"{score_emoji} *{article.title[:60]}*\n"
+        message += f"_{item.summary[:100]}_\n"
+        message += f"{article.url}\n\n"
+
+    # API WhatsApp Business
+    phone_number_id = settings.WHATSAPP_PHONE_NUMBER_ID
+    access_token = settings.WHATSAPP_ACCESS_TOKEN
+    recipient_phone = user.phone_number.replace("+", "").replace(" ", "").replace("-", "")
+
+    url = f"https://graph.instagram.com/v19.0/{phone_number_id}/messages"
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": recipient_phone,
+        "type": "text",
+        "text": {"body": message},
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        logger.info(f"WhatsApp envoye a {user.phone_number} pour digest {digest.id}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Erreur envoi WhatsApp a {user.phone_number}: {e}")
+        return False
+
+
 def send_all_pending_digests():
     """Envoie tous les digests en status 'ready'."""
     digests = Digest.objects.filter(status="ready").select_related("user", "theme")
@@ -172,12 +233,14 @@ def send_all_pending_digests():
 def send_digests_respecting_user_time():
     """
     Envoie les digests 'ready' si c'est l'heure preferee de l'utilisateur.
+    Envoie par email et/ou WhatsApp selon les preferences de l'utilisateur.
     Concu pour etre appele toutes les heures par Celery Beat.
     """
     from datetime import datetime
 
     digests = Digest.objects.filter(status="ready").select_related("user", "theme")
-    sent = 0
+    sent_email = 0
+    sent_whatsapp = 0
     failed = 0
     skipped = 0
 
@@ -191,13 +254,17 @@ def send_digests_respecting_user_time():
         hour_match = (current_time.hour == user_preferred_time.hour)
 
         if hour_match:
-            if send_digest_email(digest):
-                sent += 1
+            email_sent = send_digest_email(digest)
+            whatsapp_sent = send_digest_via_whatsapp(digest)
+
+            if email_sent or whatsapp_sent:
+                sent_email += email_sent
+                sent_whatsapp += whatsapp_sent
             else:
                 failed += 1
         else:
             skipped += 1
             logger.debug(f"Digest {digest.id} skip: utilisateur prefer {user_preferred_time}, current {current_time.time()}")
 
-    logger.info(f"Envoi avec verification heure: {sent} envoyes, {failed} echoues, {skipped} ignores")
-    return {"sent": sent, "failed": failed, "skipped": skipped}
+    logger.info(f"Envoi avec verification heure: {sent_email} emails, {sent_whatsapp} whatsapp, {failed} echoues, {skipped} ignores")
+    return {"sent_email": sent_email, "sent_whatsapp": sent_whatsapp, "failed": failed, "skipped": skipped}

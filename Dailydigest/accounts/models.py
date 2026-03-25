@@ -15,6 +15,8 @@ class User(AbstractUser):
     )
     marketing_consent = models.BooleanField(default=False, help_text="Accepte les emails marketing")
     last_theme_change = models.DateTimeField(null=True, blank=True, help_text="Derniere modification de theme (limite 1x/semaine)")
+    phone_number = models.CharField(max_length=20, null=True, blank=True, help_text="Numero WhatsApp au format +33...")
+    whatsapp_enabled = models.BooleanField(default=False, help_text="Activer les digests par WhatsApp")
 
     class Meta:
         verbose_name = "User"
